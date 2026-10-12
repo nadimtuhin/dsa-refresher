@@ -123,7 +123,7 @@ const bodyOf = pg =>
   : pg.meta.how ? conceptBody(pg, pg.meta) : designProblemBody(pg, pg.meta);
 
 // ---- shared chrome ----
-const href = pg => (pg.slug === "index" ? "./" : `${pg.slug}.html`);
+const href = pg => (pg.slug === "index" ? "./" : pg.slug); // clean URLs (vercel cleanUrls); preview with: npx serve public
 const nTracked = pages.filter(p => p.tracked).length;
 const navHtml = cur => parts.map(part => `<div class="part">${esc(part.title)}</div>` +
   part.chapters.map(ch => (ch.title ? `<div class="grp">${esc(ch.title)}</div>` : "") +

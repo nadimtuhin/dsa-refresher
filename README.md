@@ -14,6 +14,7 @@ Live: https://dsa-refresher-pi.vercel.app
 
 ```sh
 node build.js   # tests + animation checks, then public/*.html (one page per topic)
+npx serve public   # preview; links use clean URLs like /p-two-sum
 ```
 
 No dependencies. Each page inlines only its own animation frames, so a phone loads and animates one topic at a time; `site.css`, `player.js` and `app.js` are shared and cached.
