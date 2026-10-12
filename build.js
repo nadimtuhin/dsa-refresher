@@ -1,66 +1,81 @@
-// bun run build.ts  -> runs every test, then writes public/index.html (single file, works offline)
+// node build.js (or bun build.js) -> runs every test, checks every animation, writes public/index.html
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import * as C from "./concepts.ts";
-import * as P from "./problems.ts";
+import * as C from "./concepts.js";
+import * as P from "./problems.js";
+import { anims } from "./anims.js";
 
 // 1. run all tests; refuse to build if any fail
 let pass = 0, fail = 0;
-for (const [label, tests] of [["concept", C.tests], ["problem", P.tests]] as const) {
+for (const [label, tests] of [["concept", C.tests], ["problem", P.tests]]) {
   for (const [id, t] of Object.entries(tests)) for (const [got, want] of t()) {
     if (JSON.stringify(got) === JSON.stringify(want)) pass++;
     else { fail++; console.error(`FAIL ${label} ${id}: got ${JSON.stringify(got)} want ${JSON.stringify(want)}`); }
   }
 }
-console.log(`tests: ${pass} passed, ${fail} failed`);
+// 2. record every animation; its own answer must equal the tested solution's answer
+const frames = {};
+for (const [id, trace] of Object.entries(anims)) {
+  const fr = [];
+  const [mine, real] = trace((note, ...views) => fr.push({ note, views: JSON.parse(JSON.stringify(views)) }));
+  if (JSON.stringify(mine) !== JSON.stringify(real)) { fail++; console.error(`ANIM ${id}: animation ended at ${JSON.stringify(mine)}, solution gives ${JSON.stringify(real)}`); }
+  if (fr.length < 2) { fail++; console.error(`ANIM ${id}: only ${fr.length} frame(s)`); }
+  frames[id] = fr;
+}
+const wanted = [...C.chapters.flatMap(c => c.ids.map(id => "c-" + id)), ...P.chapters.flatMap(c => c.ids.map(id => "p-" + id))];
+for (const id of wanted) if (!frames[id]) { fail++; console.error(`ANIM ${id}: missing`); }
+const nFrames = Object.values(frames).reduce((s, f) => s + f.length, 0);
+console.log(`tests: ${pass} passed, ${fail} failed · animations: ${Object.keys(frames).length} checked, ${nFrames} frames`);
 if (fail) process.exit(1);
 
-// 2. source of each solution sits between "// #region id" and "// #endregion"
-const regions = (file: string) => {
+// 3. source of each solution sits between "// #region id" and "// #endregion"
+const regions = file => {
   const src = readFileSync(new URL(file, import.meta.url), "utf8");
-  return (id: string) => {
+  return id => {
     const m = src.match(new RegExp(`// #region ${id}\\n([\\s\\S]*?)// #endregion`));
     if (!m) throw new Error(`no source for ${id} in ${file}`);
     return m[1].replace(/^export /gm, "").trimEnd();
   };
 };
-const cCode = regions("./concepts.ts"), pCode = regions("./problems.ts");
+const cCode = regions("./concepts.js"), pCode = regions("./problems.js");
 for (const ch of C.chapters) for (const id of ch.ids) if (!C.meta[id] || !C.tests[id]) throw new Error(`concept missing: ${id}`);
 for (const ch of P.chapters) for (const id of ch.ids) if (!P.meta[id] || !P.tests[id]) throw new Error(`problem missing: ${id}`);
 
-const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 // ponytail: tiny regex highlighter (keywords, strings, comments, numbers). Swap for Shiki if it ever matters.
-const hl = (s: string) =>
-  esc(s).replace(/(\/\/[^\n]*)|("[^"\n]*"|'[^'\n]*'|`[^`\n]*`)|\b(const|let|function|return|if|else|for|while|of|in|new|class|private|continue|break|export|true|false|null|undefined|void|typeof|type|get)\b|\b(\d+)\b/g,
+const hl = s =>
+  esc(s).replace(/(\/\/[^\n]*)|("[^"\n]*"|'[^'\n]*'|`[^`\n]*`)|\b(const|let|function|return|if|else|for|while|of|in|new|class|private|continue|break|export|true|false|null|undefined|void|typeof|get)\b|\b(\d+)\b/g,
     (_m, c, s2, k, n) => c ? `<span class="c">${c}</span>` : s2 ? `<span class="s">${s2}</span>` : k ? `<span class="k">${k}</span>` : `<span class="n">${n}</span>`);
-const codeBlock = (src: string) => `<pre class="code"><button class="copy" type="button">Copy</button><code>${hl(src)}</code></pre>`;
-const slug = (t: string) => t.toLowerCase().replace(/[^a-z0-9 ]/g, "").trim().replace(/ +/g, "-");
+const codeBlock = src => `<pre class="code"><button class="copy" type="button">Copy</button><code>${hl(src)}</code></pre>`;
+const slug = t => t.toLowerCase().replace(/[^a-z0-9 ]/g, "").trim().replace(/ +/g, "-");
 
 // ids are prefixed (c- / p-) because both parts have e.g. "binary-search"
-const conceptPage = (id: string) => {
+const conceptPage = id => {
   const m = C.meta[id];
   return `<article id="c-${id}" class="page">
   <h2>${esc(m.title)}</h2>
   <p class="what">${esc(m.what)}</p>
   <h4>How it works</h4><p>${esc(m.how)}</p>
+  <div class="anim" data-anim="c-${id}"></div>
   <table>${m.ops.map(([o, c]) => `<tr><td>${esc(o)}</td><td><code>${esc(c)}</code></td></tr>`).join("")}</table>
   <h4>Reach for it when</h4><ul>${m.when.map(w => `<li>${esc(w)}</li>`).join("")}</ul>
-  <details><summary>Implementation (TypeScript, tested)</summary>${codeBlock(cCode(id))}</details>
+  <details><summary>Implementation (JavaScript, tested)</summary>${codeBlock(cCode(id))}</details>
   <h4>Traps</h4><ul>${m.traps.map(t => `<li>${esc(t)}</li>`).join("")}</ul>
   <div class="real"><b>In real systems:</b> ${esc(m.real)}</div>
   <div class="say"><b>Say out loud:</b> ${esc(m.say)}</div>
 </article>`;
 };
-const problemPage = (id: string) => {
+const problemPage = id => {
   const m = P.meta[id];
   return `<article id="p-${id}" class="page">
   <div class="crumb">#${m.n} · <span class="d-${m.diff}">${m.diff}</span> · <a href="https://leetcode.com/problems/${slug(m.title)}/" target="_blank" rel="noopener">LeetCode</a></div>
   <h2>${esc(m.title)}</h2>
   <p>${esc(m.prompt)}</p>
   <pre class="ex">${m.examples.map(esc).join("\n")}</pre>
+  <details class="watch"><summary>Watch it run</summary><div class="anim" data-anim="p-${id}"></div></details>
   <h4>Ask before coding</h4><ul>${m.clarify.map(q => `<li>${esc(q)}</li>`).join("")}</ul>
   <details class="hint"><summary>Hint</summary><p>${esc(m.hint)}</p></details>
   <details><summary>Approach</summary><p>${esc(m.idea)}</p><p class="cx"><b>Time</b> ${m.time} &nbsp; <b>Space</b> ${m.space}</p></details>
-  <details><summary>Solution (TypeScript, tested)</summary>${codeBlock(pCode(id))}</details>
+  <details><summary>Solution (JavaScript, tested)</summary>${codeBlock(pCode(id))}</details>
   <h4>Traps</h4><ul>${m.traps.map(t => `<li>${esc(t)}</li>`).join("")}</ul>
   <div class="say"><b>Say out loud:</b> ${esc(m.say)}</div>
 </article>`;
@@ -69,13 +84,13 @@ const problemPage = (id: string) => {
 const nCon = C.chapters.reduce((a, c) => a + c.ids.length, 0);
 const nPro = P.chapters.reduce((a, c) => a + c.ids.length, 0);
 const total = nCon + nPro;
-const link = (id: string, title: string, extra = "") =>
+const link = (id, title, extra = "") =>
   `<a href="#${id}" data-id="${id}"><input type="checkbox" class="done" data-id="${id}" aria-label="Mark ${esc(title)} done"><span>${esc(title)}</span>${extra}</a>`;
-const plain = (id: string, title: string) => `<a href="#${id}" data-id="${id}"><span>${title}</span></a>`;
+const plain = (id, title) => `<a href="#${id}" data-id="${id}"><span>${title}</span></a>`;
 
 const nav = `
   <div class="part">Start</div>
-  ${plain("start", "How to use this")}${plain("pick", "Pick a structure")}${plain("bigo", "Complexity classes")}${plain("compare", "Array vs list vs map")}${plain("method", "The 6 step method")}${plain("ts", "TypeScript cheat sheet")}
+  ${plain("start", "How to use this")}${plain("pick", "Pick a structure")}${plain("bigo", "Complexity classes")}${plain("compare", "Array vs list vs map")}${plain("method", "The 6 step method")}${plain("ts", "JavaScript cheat sheet")}
   <div class="part">Part 1 · Concepts</div>
   ${C.chapters.map(c => `<div class="grp">${esc(c.title)}</div>${c.ids.map(id => link("c-" + id, C.meta[id].title)).join("")}`).join("")}
   <div class="part">Part 2 · Problems</div>
@@ -83,13 +98,13 @@ const nav = `
 
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DSA refresher: ${nCon} concepts, ${nPro} problems, tested TypeScript</title>
-<meta name="description" content="A compact data structures and algorithms refresher for coding interviews. Every implementation and solution is TypeScript and tested before the page builds.">
+<title>DSA refresher: ${nCon} concepts, ${nPro} problems, tested JavaScript, animated</title>
+<meta name="description" content="A compact data structures and algorithms refresher for coding interviews. Every implementation and solution is JavaScript, animated step by step, and tested before the page builds.">
 <style>
 :root{--ink:#0a0a0a;--body:#242424;--meta:#5c5c5c;--rule:#e2e2e2;--soft:#f6f6f4;--side:#fafaf8;--accent:#d71921;--ok:#1a7f37;--med:#9a6700;
 --sans:-apple-system,BlinkMacSystemFont,"Inter","Helvetica Neue",Arial,sans-serif;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
-body{margin:0;font:16px/1.65 var(--sans);color:var(--body);background:#fff;display:grid;grid-template-columns:300px 1fr;min-height:100vh}
+body{margin:0;font:16px/1.65 var(--sans);color:var(--body);background:#fff;display:grid;grid-template-columns:300px minmax(0,1fr);min-height:100vh}
 aside{position:sticky;top:0;height:100vh;overflow:auto;background:var(--side);border-right:1px solid var(--rule);padding:20px 0 40px}
 aside .brand{padding:0 20px 4px;font-weight:700;color:var(--ink)}
 aside .prog{padding:0 20px 12px;font:12px var(--mono);color:var(--meta)}
@@ -130,11 +145,41 @@ details[open]{padding-bottom:6px}details.hint summary{color:var(--med)}
 table{border-collapse:collapse;width:100%;font-size:14.5px;margin:10px 0}
 td,th{border-top:1px solid var(--rule);padding:7px 10px 7px 0;text-align:left;vertical-align:top}
 th{font:11px var(--mono);text-transform:uppercase;color:var(--meta);font-weight:400}
-.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 28px}
 a{color:var(--ink)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 footer{margin-top:64px;font:12px var(--mono);color:var(--meta)}
-@media(max-width:900px){body{grid-template-columns:1fr}aside{position:static;height:auto;max-height:50vh}main{padding:24px}.cols{grid-template-columns:1fr}}
+.anim{border:1px solid var(--rule);border-radius:8px;padding:14px 16px 10px;margin:14px 0;background:#fff;--cur:#fde68a;--cmp:#dbeafe;--ok:#bbf7d0;--bad:#fecaca;--dim:#f1f1ef}
+.anim:focus-visible{outline:2px solid var(--accent)}
+details.watch{border-color:var(--ink)}details.watch .anim{border:0;padding:4px 0 8px;margin:0}
+.stage{display:flex;flex-direction:column;gap:12px;min-height:60px}
+.view .vl{font:11px var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--meta);margin-bottom:4px}
+.row{display:flex;flex-wrap:wrap;gap:4px}
+.slot{display:flex;flex-direction:column;align-items:center;min-width:38px}
+.cell{min-width:38px;height:34px;padding:0 6px;display:flex;align-items:center;justify-content:center;border:1px solid #cfcfca;border-radius:5px;font:13px var(--mono);color:var(--ink);background:#fff;transition:background .25s,border-color .25s,opacity .25s}
+.cell.cur{background:var(--cur);border-color:#d97706}.cell.cmp{background:var(--cmp);border-color:#3b82f6}.cell.ok{background:var(--ok);border-color:#16a34a}.cell.bad{background:var(--bad);border-color:#dc2626}.cell.dim{background:var(--dim);color:#aaa;border-color:#e5e5e0}
+.cell.node{border-radius:17px}
+.ix{font:10px var(--mono);color:var(--meta);height:14px}.ptr{font:11px var(--mono);color:var(--accent);font-weight:700;height:14px;white-space:nowrap}
+.empty{font:12px var(--mono);color:var(--meta);padding:8px 0}
+.kv{display:flex;flex-wrap:wrap;gap:6px}.pair{display:flex;border:1px solid #cfcfca;border-radius:5px;font:13px var(--mono);overflow:hidden;transition:background .25s}
+.pair b{padding:5px 8px;background:var(--soft);font-weight:600}.pair span{padding:5px 8px}.pair.cur{border-color:#d97706}.pair.cur span,.pair.cur b{background:var(--cur)}
+.vars{display:flex;flex-wrap:wrap;gap:6px 16px;font:13px var(--mono)}.vars i{font-style:normal;color:var(--meta)}
+.grid{display:grid;gap:3px}.grid .cell{min-width:34px;width:34px}
+.buckets{display:flex;flex-direction:column;gap:4px}.bk{display:flex;align-items:center;gap:4px;padding:3px 6px;border-radius:5px;min-height:38px;transition:background .25s}.bk.on{background:#fafaf2}.bk .ix{width:18px;height:auto}.chip{min-width:0;height:28px}
+.svg{width:100%;max-width:560px;height:auto;display:block}
+.svg line{stroke:#bdbdb7;stroke-width:1.5;transition:stroke .25s}.svg line.cur{stroke:#d97706;stroke-width:2.5}.svg line.cmp{stroke:#3b82f6}
+.svg marker path{fill:#9a9a94}
+.svg text{font:12px var(--mono);text-anchor:middle;fill:var(--ink)}.svg text.sub{font-size:11px;fill:var(--accent);font-weight:700}.svg text.sub,.svg text.w{paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}.svg text.tick{font-size:10px;fill:var(--meta)}.nil{font:11px var(--mono);color:#bbb}.svg text.w{fill:var(--meta)}.svg text.bl{text-anchor:start;font-size:11px}
+.nd circle,.nd rect{fill:#fff;stroke:#9a9a94;stroke-width:1.5;transition:fill .25s,stroke .25s}
+.nd.cur circle,.nd.cur rect{fill:var(--cur);stroke:#d97706}.nd.cmp circle,.nd.cmp rect{fill:var(--cmp);stroke:#3b82f6}.nd.ok circle,.nd.ok rect{fill:var(--ok);stroke:#16a34a}.nd.bad circle,.nd.bad rect{fill:var(--bad);stroke:#dc2626}
+.note{min-height:3.2em;margin:10px 0 6px;color:var(--ink);font-size:15px}
+.ctl{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ctl button,.ctl select{font:12px var(--mono);border:1px solid var(--rule);background:#fff;border-radius:5px;padding:4px 9px;cursor:pointer;color:var(--ink)}
+.ctl .play{min-width:58px;background:var(--ink);color:#fff;border-color:var(--ink)}
+.ctl input{flex:1;min-width:120px;accent-color:var(--ink)}.ctl .cnt{font:11px var(--mono);color:var(--meta);min-width:52px;text-align:right}
+@media(prefers-reduced-motion:reduce){.cell,.pair,.bk,.svg line,.nd circle,.nd rect{transition:none}}
+@media print{.anim{display:none}}
+@media(max-width:900px){body{grid-template-columns:minmax(0,1fr)}table{display:block;overflow-x:auto}aside{position:static;height:auto;max-height:50vh}main{padding:24px}.cols{grid-template-columns:minmax(0,1fr)}}
 @media print{aside{display:none}body{display:block}details{border:0;padding:0}details>*{display:block}.copy{display:none}}
 </style></head><body>
 <aside aria-label="Contents">
@@ -147,7 +192,7 @@ footer{margin-top:64px;font:12px var(--mono);color:var(--meta)}
 <main>
 <div class="intro" id="start">
   <h1>Data structures and algorithms, refreshed</h1>
-  <p class="lead">${nCon} concepts and ${nPro} interview problems. Every implementation and solution is TypeScript, and all ${pass} tests pass before this page is built. Tick items off in the sidebar; progress is saved in your browser.</p>
+  <p class="lead">${nCon} concepts and ${nPro} interview problems. Every implementation and solution is plain JavaScript with a step-by-step animation, and all ${pass} tests pass before this page is built. Tick items off in the sidebar; progress is saved in your browser.</p>
   <p><b>Part 1, Concepts:</b> how each structure works inside, what it costs, when to reach for it, and where it shows up in production. Read "How it works", then explain it out loud before opening the code.</p>
   <p><b>Part 2, Problems:</b> easy and easy-medium problems grouped by pattern. Read the prompt, say the clarifying questions, try it yourself first, then open the hint, the approach, and the solution in that order. Redo the ones you peeked at the next day, from a blank file.</p>
 </div>
@@ -238,17 +283,17 @@ footer{margin-top:64px;font:12px var(--mono);color:var(--meta)}
 </section>
 
 <section class="ch" id="ts">
-  <h2>TypeScript cheat sheet</h2>
+  <h2>JavaScript cheat sheet</h2>
   <div class="cols"><div>
   <pre><code>${hl(`// Map: counts, value -> index
-const m = new Map<number, number>();
+const m = new Map();
 m.set(k, (m.get(k) ?? 0) + 1);
-m.has(k); m.get(k)!; m.delete(k);
+m.has(k); m.get(k); m.delete(k);
 for (const [k, v] of m) {}
 [...m.values()]
 
 // Set
-const s = new Set<string>();
+const s = new Set();
 s.add(x); s.has(x); s.size;`)}</code></pre>
   </div><div>
   <pre><code>${hl(`// Arrays
@@ -275,6 +320,8 @@ ${C.chapters.map(c => `<section class="ch" id="cc-${c.id}"><h2>${esc(c.title)}</
 ${P.chapters.map(c => `<section class="ch" id="pc-${c.id}"><h2>${esc(c.title)}</h2><p>${esc(c.blurb)}</p>${c.ids.map(problemPage).join("")}</section>`).join("")}
 <footer>Built by <a href="https://github.com/nadimtuhin">Nadim Tuhin</a> · source and tests: <a href="https://github.com/nadimtuhin/dsa-refresher">github.com/nadimtuhin/dsa-refresher</a> · <a href="https://dsa-refresher-pi.vercel.app">live</a></footer>
 </main>
+<script>window.FRAMES = ${JSON.stringify(frames).replace(/</g, "\\u003c")};</script>
+<script>${readFileSync(new URL("./player.js", import.meta.url), "utf8")}</script>
 <script>
   const KEY = "dsa-refresher-done";
   const done = new Set(JSON.parse(localStorage.getItem(KEY) || "[]"));
@@ -306,4 +353,4 @@ ${P.chapters.map(c => `<section class="ch" id="pc-${c.id}"><h2>${esc(c.title)}</
 
 mkdirSync(new URL("./public/", import.meta.url), { recursive: true });
 writeFileSync(new URL("./public/index.html", import.meta.url), html);
-console.log(`wrote public/index.html: ${nCon} concepts + ${nPro} problems`);
+console.log(`wrote public/index.html: ${nCon} concepts + ${nPro} problems, ${Math.round(html.length / 1024)} KB`);
