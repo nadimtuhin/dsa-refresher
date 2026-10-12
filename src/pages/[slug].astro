@@ -1,0 +1,10 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { pages } from "../lib/book.js";
+
+export function getStaticPaths() {
+  return pages.filter(pg => pg.slug !== "index").map(pg => ({ params: { slug: pg.slug }, props: { pg } }));
+}
+const { pg } = Astro.props;
+---
+<Layout pg={pg} />

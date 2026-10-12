@@ -13,11 +13,11 @@ Live: https://dsa-refresher-pi.vercel.app
 ## Build
 
 ```sh
-node build.js   # tests + animation checks, then public/*.html (one page per topic)
-npx serve public   # preview; links use clean URLs like /p-two-sum
+npm run build   # tests + animation checks, then Astro writes dist/ (one page per topic)
+npm run preview   # links use clean URLs like /p-two-sum
 ```
 
-No dependencies. Each page inlines only its own animation frames, so a phone loads and animates one topic at a time; `site.css`, `player.js` and `app.js` are shared and cached.
+One dependency (`astro`, static output, no client framework). Each page inlines only its own animation frames, so a phone loads and animates one topic at a time; `site.css`, `player.js` and `app.js` are shared and cached.
 
 - `concepts.js`, `problems.js`, `design.js`: code, tests and text. Code sits between `// #region <id>` and `// #endregion`; the build copies that exact source into the page, so pages always show tested code.
 - `anims.js`, `design-anims.js`: one tracer per entry. It replays the logic on a small input, records frames, and returns its answer next to the tested code's answer.

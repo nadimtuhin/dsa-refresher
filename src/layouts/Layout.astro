@@ -1,0 +1,79 @@
+---
+import { parts, pages, frames, nTracked, hrefOf, BUILD_DATE, firstOfPart } from "../lib/book.js";
+import { SITE, BOOK_NAME, urlOf, jsonLd } from "../lib/seo.js";
+
+const { pg } = Astro.props;
+const { prev, next } = pg;
+const url = urlOf(pg);
+const where = [pg.part.key === "start" ? "" : pg.part.title, pg.ch.title].filter(Boolean).join(" · ");
+const safeJson = x => JSON.stringify(x).replace(/</g, "\\u003c");
+const pageFrames = frames[pg.slug];
+const ld = safeJson(jsonLd(pg, { buildDate: BUILD_DATE, firstOfPart }));
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>{pg.seoTitle}</title>
+<meta name="description" content={pg.description}>
+<meta name="author" content="Nadim Tuhin">
+<link rel="canonical" href={url}>
+{prev && <link rel="prev" href={hrefOf(prev)}>}
+{next && <link rel="next" href={hrefOf(next)}>}
+<meta property="og:type" content={pg.slug === "index" ? "website" : "article"}>
+<meta property="og:site_name" content={BOOK_NAME}>
+<meta property="og:title" content={pg.seoTitle}>
+<meta property="og:description" content={pg.description}>
+<meta property="og:url" content={url}>
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="https://github.com/nadimtuhin">
+<meta property="article:modified_time" content={BUILD_DATE}>
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content={pg.seoTitle}>
+<meta name="twitter:description" content={pg.description}>
+<link rel="stylesheet" href="/site.css">
+<script type="application/ld+json" set:html={ld}></script>
+</head>
+<body>
+<header class="topbar"><button type="button" id="menu" aria-controls="nav" aria-expanded="false">Menu</button><span class="tt">{pg.title}</span><span class="tp" title="topics done"><span id="cnt2">0</span>/{nTracked} done</span></header>
+<div class="scrim" id="scrim"></div>
+<aside aria-label="Contents" id="nav">
+  <button type="button" class="close" id="navclose" aria-label="Close menu">✕</button>
+  <div class="brand"><a href="./" style="text-decoration:none">DSA refresher</a></div>
+  <div class="prog"><span id="cnt">0</span> / {nTracked} done</div>
+  <div class="bar"><i id="bar"></i></div>
+  <input class="q" id="q" type="search" placeholder="Filter" aria-label="Filter topics">
+  {parts.map(part => (
+    <Fragment>
+      <div class="part">{part.title}</div>
+      {part.chapters.map(ch => (
+        <Fragment>
+          {ch.title && <div class="grp">{ch.title}</div>}
+          {pages.filter(p => p.part === part && ch.ids.includes(p.id)).map(p => (
+            <a href={hrefOf(p)} data-id={p.slug} class={p === pg ? "on" : undefined} aria-current={p === pg ? "page" : undefined}>{p.tracked && <input type="checkbox" class="done" data-id={p.slug} aria-label={`Mark ${p.title} done`}>}<span>{p.title}</span>{part.key === "p" && <em class={`d-${p.meta.diff}`}>{p.meta.diff[0]}</em>}</a>
+          ))}
+        </Fragment>
+      ))}
+    </Fragment>
+  ))}
+</aside>
+<main>
+<article class="page" id={pg.slug}>
+  {where && <div class="crumb">{where}</div>}
+  {pg.part.key !== "start" && <h1 class="title">{pg.title}</h1>}
+  <Fragment set:html={pg.body} />
+  {pg.tracked && <label class="donebox"><input type="checkbox" class="done" data-id={pg.slug}> I can explain this without looking</label>}
+  <nav class="pager" aria-label="Previous and next">
+    {prev && <a class="pv" href={hrefOf(prev)} rel="prev"><small>← Previous</small><span>{prev.title}</span></a>}
+    {next && <a class="nx" href={hrefOf(next)} rel="next"><small>Next →</small><span>{next.title}</span></a>}
+  </nav>
+</article>
+<footer>Built by <a href="https://github.com/nadimtuhin">Nadim Tuhin</a> · source and tests: <a href="https://github.com/nadimtuhin/dsa-refresher">github.com/nadimtuhin/dsa-refresher</a> · <time datetime={BUILD_DATE}>Updated {BUILD_DATE}</time></footer>
+</main>
+{pageFrames && <script is:inline set:html={`window.FRAMES = ${safeJson({ [pg.slug]: pageFrames })};`}></script>}
+{pageFrames && <script is:inline src="/player.js" defer></script>}
+<script is:inline src="/app.js" defer></script>
+</body>
+</html>

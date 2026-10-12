@@ -46,9 +46,9 @@ section.ch{border-top:1px solid var(--rule);margin-top:40px;padding-top:24px}
 section.ch>h2{font-size:21px;color:var(--ink);margin:0 0 4px}
 section.ch>p{color:var(--meta);margin:0 0 8px}
 .page{padding:24px 0 8px;border-bottom:1px dashed var(--rule)}
-.page h2{font-size:19px;color:var(--ink);margin:4px 0 8px}
+.page h1.title,.page h2{font-size:19px;color:var(--ink);margin:4px 0 8px}
 .crumb{font:12px var(--mono);color:var(--meta)}.crumb a{color:var(--meta);display:inline-block;padding:6px 0}
-h4{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--meta);margin:18px 0 4px}
+.page h2.sub{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--meta);margin:18px 0 4px}
 ul{margin:0 0 10px;padding-left:20px}li{margin:4px 0}
 pre{font:12.5px/1.55 var(--mono);background:var(--soft);border:1px solid var(--rule);border-radius:6px;padding:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:10px 0}
 pre.code{position:relative;background:#fbfbfa;padding-top:44px}
@@ -126,7 +126,7 @@ details.watch{border-color:var(--ink)}details.watch .anim{border:0;padding:4px 0
   article,section,.partHead,.intro{scroll-margin-top:16px}
   .intro h1{font-size:32px}.partHead{margin-top:72px}.partHead h1{font-size:28px}
   section.ch{margin-top:48px;padding-top:28px}section.ch>h2{font-size:24px}
-  .page{padding-top:28px}.page h2{font-size:21px}
+  .page{padding-top:28px}.page h1.title,.page h2{font-size:21px}
   pre{font-size:13.5px;padding:12px 14px}pre.code{padding-top:34px}
   .copy{top:8px;right:8px;font-size:11px;min-height:0;padding:2px 8px;border-radius:4px}
   details summary{min-height:0;padding:9px 0}
@@ -160,6 +160,6 @@ details.watch{border-color:var(--ink)}details.watch .anim{border:0;padding:4px 0
 .pager a span{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pager .nx{text-align:right;grid-column:2}
 .ask{background:var(--soft);border-radius:8px;padding:10px 14px 4px;margin:12px 0}
-.ask h4{margin-top:4px}
+.ask h2.sub{margin-top:4px}
 pre.plain{white-space:pre-wrap;word-break:break-word}
 @media (hover:hover){.pager a:hover,.donebox:hover{border-color:var(--ink)}}

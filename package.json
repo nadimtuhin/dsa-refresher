@@ -2,5 +2,13 @@
   "name": "dsa-refresher",
   "private": true,
   "type": "module",
-  "scripts": { "build": "node build.js" }
+  "scripts": {
+    "dev": "astro dev",
+    "check": "node check.js",
+    "build": "node check.js && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "7.3.8"
+  }
 }

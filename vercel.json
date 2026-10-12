@@ -1,7 +1,7 @@
 {
-  "buildCommand": "",
-  "outputDirectory": "public",
-  "framework": null,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "astro",
   "cleanUrls": true,
   "headers": [
     { "source": "/(site.css|player.js|app.js)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=86400" }] }
