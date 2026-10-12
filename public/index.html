@@ -1,0 +1,1356 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DSA refresher: 18 concepts, 27 problems, tested TypeScript</title>
+<meta name="description" content="A compact data structures and algorithms refresher for coding interviews. Every implementation and solution is TypeScript and tested before the page builds.">
+<style>
+:root{--ink:#0a0a0a;--body:#242424;--meta:#5c5c5c;--rule:#e2e2e2;--soft:#f6f6f4;--side:#fafaf8;--accent:#d71921;--ok:#1a7f37;--med:#9a6700;
+--sans:-apple-system,BlinkMacSystemFont,"Inter","Helvetica Neue",Arial,sans-serif;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;font:16px/1.65 var(--sans);color:var(--body);background:#fff;display:grid;grid-template-columns:300px 1fr;min-height:100vh}
+aside{position:sticky;top:0;height:100vh;overflow:auto;background:var(--side);border-right:1px solid var(--rule);padding:20px 0 40px}
+aside .brand{padding:0 20px 4px;font-weight:700;color:var(--ink)}
+aside .prog{padding:0 20px 12px;font:12px var(--mono);color:var(--meta)}
+aside .bar{height:3px;background:var(--rule);margin:0 20px 14px}aside .bar i{display:block;height:100%;background:var(--ink);width:0}
+aside input.q{margin:0 20px 6px;width:calc(100% - 40px);padding:7px 10px;border:1px solid var(--rule);border-radius:6px;font:14px var(--sans)}
+.part{margin:18px 20px 0;padding-top:12px;border-top:1px solid var(--rule);font-weight:700;color:var(--ink);font-size:13px}
+.grp{padding:10px 20px 2px;font:11px var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--meta)}
+aside a{display:flex;align-items:center;gap:8px;padding:4px 20px;color:var(--body);text-decoration:none;font-size:14.5px;border-left:2px solid transparent}
+aside a:hover{background:#f0f0ec}aside a.on{border-left-color:var(--ink);background:#efefea;color:var(--ink);font-weight:600}
+aside a span{flex:1}aside a em{font:11px var(--mono);font-style:normal}
+aside a.isdone span{color:var(--meta);text-decoration:line-through}
+.done{accent-color:var(--ink);margin:0}
+.d-Easy{color:var(--ok)}.d-Medium{color:var(--med)}
+main{max-width:820px;padding:40px 56px 120px}
+.intro h1{font-size:32px;line-height:1.2;color:var(--ink);margin:0 0 8px}
+.lead{color:var(--meta)}
+.partHead{margin-top:72px;padding:20px 0 0;border-top:3px solid var(--ink)}
+.partHead h1{font-size:28px;color:var(--ink);margin:0}
+section.ch{border-top:1px solid var(--rule);margin-top:48px;padding-top:28px}
+section.ch>h2{font-size:24px;color:var(--ink);margin:0 0 4px}
+section.ch>p{color:var(--meta);margin:0 0 8px}
+.page{padding:28px 0 8px;border-bottom:1px dashed var(--rule)}
+.page h2{font-size:21px;color:var(--ink);margin:4px 0 8px}
+.crumb{font:12px var(--mono);color:var(--meta)}.crumb a{color:var(--meta)}
+h4{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--meta);margin:18px 0 4px}
+ul{margin:0 0 10px;padding-left:20px}li{margin:3px 0}
+pre{font:13.5px/1.55 var(--mono);background:var(--soft);border:1px solid var(--rule);border-radius:6px;padding:12px 14px;overflow-x:auto;margin:10px 0}
+pre.code{position:relative;background:#fbfbfa;padding-top:34px}
+.copy{position:absolute;top:8px;right:8px;font:11px var(--mono);border:1px solid var(--rule);background:#fff;border-radius:4px;padding:2px 8px;cursor:pointer}
+.k{color:#8250df}.s{color:#0a3069}.c{color:#6e7781;font-style:italic}.n{color:#0550ae}
+details{border:1px solid var(--rule);border-radius:6px;margin:8px 0;padding:0 14px}
+details summary{cursor:pointer;padding:9px 0;font-weight:600;color:var(--ink)}
+details[open]{padding-bottom:6px}details.hint summary{color:var(--med)}
+.cx{font:13px var(--mono);color:var(--meta)}
+.what{font-size:17px;color:var(--ink)}
+.real{background:var(--soft);border-radius:6px;padding:10px 14px;margin:14px 0 4px}
+.say{border-left:2px solid var(--ink);padding:4px 0 4px 14px;margin:16px 0 4px;color:var(--ink)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;margin:10px 0}
+td,th{border-top:1px solid var(--rule);padding:7px 10px 7px 0;text-align:left;vertical-align:top}
+th{font:11px var(--mono);text-transform:uppercase;color:var(--meta);font-weight:400}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
+a{color:var(--ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+footer{margin-top:64px;font:12px var(--mono);color:var(--meta)}
+@media(max-width:900px){body{grid-template-columns:1fr}aside{position:static;height:auto;max-height:50vh}main{padding:24px}.cols{grid-template-columns:1fr}}
+@media print{aside{display:none}body{display:block}details{border:0;padding:0}details>*{display:block}.copy{display:none}}
+</style></head><body>
+<aside aria-label="Contents">
+  <div class="brand">DSA refresher</div>
+  <div class="prog"><span id="cnt">0</span> / 45 done</div>
+  <div class="bar"><i id="bar"></i></div>
+  <input class="q" id="q" type="search" placeholder="Filter" aria-label="Filter topics and problems">
+  
+  <div class="part">Start</div>
+  <a href="#start" data-id="start"><span>How to use this</span></a><a href="#pick" data-id="pick"><span>Pick a structure</span></a><a href="#bigo" data-id="bigo"><span>Complexity classes</span></a><a href="#compare" data-id="compare"><span>Array vs list vs map</span></a><a href="#method" data-id="method"><span>The 6 step method</span></a><a href="#ts" data-id="ts"><span>TypeScript cheat sheet</span></a>
+  <div class="part">Part 1 · Concepts</div>
+  <div class="grp">Hash tables</div><a href="#c-hash-map" data-id="c-hash-map"><input type="checkbox" class="done" data-id="c-hash-map" aria-label="Mark Hash map done"><span>Hash map</span></a><div class="grp">Queues and stacks</div><a href="#c-queue" data-id="c-queue"><input type="checkbox" class="done" data-id="c-queue" aria-label="Mark Queue and stack done"><span>Queue and stack</span></a><div class="grp">Heaps</div><a href="#c-min-heap" data-id="c-min-heap"><input type="checkbox" class="done" data-id="c-min-heap" aria-label="Mark Binary heap (priority queue) done"><span>Binary heap (priority queue)</span></a><div class="grp">Trees</div><a href="#c-traversals" data-id="c-traversals"><input type="checkbox" class="done" data-id="c-traversals" aria-label="Mark Tree traversals done"><span>Tree traversals</span></a><a href="#c-bst" data-id="c-bst"><input type="checkbox" class="done" data-id="c-bst" aria-label="Mark Binary search tree done"><span>Binary search tree</span></a><a href="#c-trie" data-id="c-trie"><input type="checkbox" class="done" data-id="c-trie" aria-label="Mark Trie (prefix tree) done"><span>Trie (prefix tree)</span></a><div class="grp">Graphs</div><a href="#c-graph" data-id="c-graph"><input type="checkbox" class="done" data-id="c-graph" aria-label="Mark Graphs, BFS and DFS done"><span>Graphs, BFS and DFS</span></a><a href="#c-topo-sort" data-id="c-topo-sort"><input type="checkbox" class="done" data-id="c-topo-sort" aria-label="Mark Topological sort done"><span>Topological sort</span></a><a href="#c-dijkstra" data-id="c-dijkstra"><input type="checkbox" class="done" data-id="c-dijkstra" aria-label="Mark Dijkstra's shortest path done"><span>Dijkstra's shortest path</span></a><a href="#c-union-find" data-id="c-union-find"><input type="checkbox" class="done" data-id="c-union-find" aria-label="Mark Union-find (disjoint set) done"><span>Union-find (disjoint set)</span></a><div class="grp">Sorting and searching</div><a href="#c-merge-sort" data-id="c-merge-sort"><input type="checkbox" class="done" data-id="c-merge-sort" aria-label="Mark Merge sort done"><span>Merge sort</span></a><a href="#c-quick-sort" data-id="c-quick-sort"><input type="checkbox" class="done" data-id="c-quick-sort" aria-label="Mark Quick sort done"><span>Quick sort</span></a><a href="#c-binary-search" data-id="c-binary-search"><input type="checkbox" class="done" data-id="c-binary-search" aria-label="Mark Binary search templates done"><span>Binary search templates</span></a><div class="grp">Recursion and backtracking</div><a href="#c-backtracking" data-id="c-backtracking"><input type="checkbox" class="done" data-id="c-backtracking" aria-label="Mark Backtracking done"><span>Backtracking</span></a><div class="grp">Dynamic programming</div><a href="#c-dp" data-id="c-dp"><input type="checkbox" class="done" data-id="c-dp" aria-label="Mark Dynamic programming done"><span>Dynamic programming</span></a><div class="grp">Bits</div><a href="#c-bits" data-id="c-bits"><input type="checkbox" class="done" data-id="c-bits" aria-label="Mark Bit manipulation done"><span>Bit manipulation</span></a><div class="grp">Built for backends</div><a href="#c-lru-cache" data-id="c-lru-cache"><input type="checkbox" class="done" data-id="c-lru-cache" aria-label="Mark LRU cache done"><span>LRU cache</span></a><a href="#c-token-bucket" data-id="c-token-bucket"><input type="checkbox" class="done" data-id="c-token-bucket" aria-label="Mark Token bucket rate limiter done"><span>Token bucket rate limiter</span></a>
+  <div class="part">Part 2 · Problems</div>
+  <div class="grp">Arrays and hashing</div><a href="#p-two-sum" data-id="p-two-sum"><input type="checkbox" class="done" data-id="p-two-sum" aria-label="Mark Two Sum done"><span>Two Sum</span><em class="d-Easy">E</em></a><a href="#p-contains-duplicate" data-id="p-contains-duplicate"><input type="checkbox" class="done" data-id="p-contains-duplicate" aria-label="Mark Contains Duplicate done"><span>Contains Duplicate</span><em class="d-Easy">E</em></a><a href="#p-valid-anagram" data-id="p-valid-anagram"><input type="checkbox" class="done" data-id="p-valid-anagram" aria-label="Mark Valid Anagram done"><span>Valid Anagram</span><em class="d-Easy">E</em></a><a href="#p-group-anagrams" data-id="p-group-anagrams"><input type="checkbox" class="done" data-id="p-group-anagrams" aria-label="Mark Group Anagrams done"><span>Group Anagrams</span><em class="d-Medium">M</em></a><a href="#p-majority-element" data-id="p-majority-element"><input type="checkbox" class="done" data-id="p-majority-element" aria-label="Mark Majority Element done"><span>Majority Element</span><em class="d-Easy">E</em></a><a href="#p-top-k-frequent" data-id="p-top-k-frequent"><input type="checkbox" class="done" data-id="p-top-k-frequent" aria-label="Mark Top K Frequent Elements done"><span>Top K Frequent Elements</span><em class="d-Medium">M</em></a><div class="grp">Two pointers</div><a href="#p-valid-palindrome" data-id="p-valid-palindrome"><input type="checkbox" class="done" data-id="p-valid-palindrome" aria-label="Mark Valid Palindrome done"><span>Valid Palindrome</span><em class="d-Easy">E</em></a><a href="#p-merge-sorted-array" data-id="p-merge-sorted-array"><input type="checkbox" class="done" data-id="p-merge-sorted-array" aria-label="Mark Merge Sorted Array done"><span>Merge Sorted Array</span><em class="d-Easy">E</em></a><a href="#p-move-zeroes" data-id="p-move-zeroes"><input type="checkbox" class="done" data-id="p-move-zeroes" aria-label="Mark Move Zeroes done"><span>Move Zeroes</span><em class="d-Easy">E</em></a><a href="#p-remove-duplicates" data-id="p-remove-duplicates"><input type="checkbox" class="done" data-id="p-remove-duplicates" aria-label="Mark Remove Duplicates from Sorted Array done"><span>Remove Duplicates from Sorted Array</span><em class="d-Easy">E</em></a><div class="grp">Sliding window</div><a href="#p-best-time-stock" data-id="p-best-time-stock"><input type="checkbox" class="done" data-id="p-best-time-stock" aria-label="Mark Best Time to Buy and Sell Stock done"><span>Best Time to Buy and Sell Stock</span><em class="d-Easy">E</em></a><a href="#p-longest-substring" data-id="p-longest-substring"><input type="checkbox" class="done" data-id="p-longest-substring" aria-label="Mark Longest Substring Without Repeating Characters done"><span>Longest Substring Without Repeating Characters</span><em class="d-Medium">M</em></a><div class="grp">Stack</div><a href="#p-valid-parentheses" data-id="p-valid-parentheses"><input type="checkbox" class="done" data-id="p-valid-parentheses" aria-label="Mark Valid Parentheses done"><span>Valid Parentheses</span><em class="d-Easy">E</em></a><a href="#p-min-stack" data-id="p-min-stack"><input type="checkbox" class="done" data-id="p-min-stack" aria-label="Mark Min Stack done"><span>Min Stack</span><em class="d-Medium">M</em></a><div class="grp">Binary search</div><a href="#p-binary-search" data-id="p-binary-search"><input type="checkbox" class="done" data-id="p-binary-search" aria-label="Mark Binary Search done"><span>Binary Search</span><em class="d-Easy">E</em></a><a href="#p-search-insert" data-id="p-search-insert"><input type="checkbox" class="done" data-id="p-search-insert" aria-label="Mark Search Insert Position done"><span>Search Insert Position</span><em class="d-Easy">E</em></a><div class="grp">Linked list</div><a href="#p-reverse-list" data-id="p-reverse-list"><input type="checkbox" class="done" data-id="p-reverse-list" aria-label="Mark Reverse Linked List done"><span>Reverse Linked List</span><em class="d-Easy">E</em></a><a href="#p-merge-two-lists" data-id="p-merge-two-lists"><input type="checkbox" class="done" data-id="p-merge-two-lists" aria-label="Mark Merge Two Sorted Lists done"><span>Merge Two Sorted Lists</span><em class="d-Easy">E</em></a><a href="#p-linked-list-cycle" data-id="p-linked-list-cycle"><input type="checkbox" class="done" data-id="p-linked-list-cycle" aria-label="Mark Linked List Cycle done"><span>Linked List Cycle</span><em class="d-Easy">E</em></a><div class="grp">Trees and BFS</div><a href="#p-max-depth" data-id="p-max-depth"><input type="checkbox" class="done" data-id="p-max-depth" aria-label="Mark Maximum Depth of Binary Tree done"><span>Maximum Depth of Binary Tree</span><em class="d-Easy">E</em></a><a href="#p-invert-tree" data-id="p-invert-tree"><input type="checkbox" class="done" data-id="p-invert-tree" aria-label="Mark Invert Binary Tree done"><span>Invert Binary Tree</span><em class="d-Easy">E</em></a><a href="#p-level-order" data-id="p-level-order"><input type="checkbox" class="done" data-id="p-level-order" aria-label="Mark Binary Tree Level Order Traversal done"><span>Binary Tree Level Order Traversal</span><em class="d-Medium">M</em></a><div class="grp">Grids and graphs</div><a href="#p-number-of-islands" data-id="p-number-of-islands"><input type="checkbox" class="done" data-id="p-number-of-islands" aria-label="Mark Number of Islands done"><span>Number of Islands</span><em class="d-Medium">M</em></a><div class="grp">Intervals</div><a href="#p-merge-intervals" data-id="p-merge-intervals"><input type="checkbox" class="done" data-id="p-merge-intervals" aria-label="Mark Merge Intervals done"><span>Merge Intervals</span><em class="d-Medium">M</em></a><div class="grp">Simple DP</div><a href="#p-climbing-stairs" data-id="p-climbing-stairs"><input type="checkbox" class="done" data-id="p-climbing-stairs" aria-label="Mark Climbing Stairs done"><span>Climbing Stairs</span><em class="d-Easy">E</em></a><a href="#p-max-subarray" data-id="p-max-subarray"><input type="checkbox" class="done" data-id="p-max-subarray" aria-label="Mark Maximum Subarray done"><span>Maximum Subarray</span><em class="d-Medium">M</em></a><div class="grp">Strings</div><a href="#p-longest-common-prefix" data-id="p-longest-common-prefix"><input type="checkbox" class="done" data-id="p-longest-common-prefix" aria-label="Mark Longest Common Prefix done"><span>Longest Common Prefix</span><em class="d-Easy">E</em></a>
+  <div class="part">End</div>
+  <a href="#plan" data-id="plan"><span>A 5 day plan</span></a>
+</aside>
+<main>
+<div class="intro" id="start">
+  <h1>Data structures and algorithms, refreshed</h1>
+  <p class="lead">18 concepts and 27 interview problems. Every implementation and solution is TypeScript, and all 151 tests pass before this page is built. Tick items off in the sidebar; progress is saved in your browser.</p>
+  <p><b>Part 1, Concepts:</b> how each structure works inside, what it costs, when to reach for it, and where it shows up in production. Read "How it works", then explain it out loud in 60 seconds before opening the code.</p>
+  <p><b>Part 2, Problems:</b> easy and easy-medium problems grouped by pattern. Read the prompt, say the clarifying questions, try for 10 minutes, then open the hint, the approach, and the solution in that order. Redo the ones you peeked at the next day, from a blank file.</p>
+</div>
+
+<section class="ch" id="pick">
+  <h2>Pick a structure from what you need</h2>
+  <table>
+    <tr><th>I need</th><th>Use</th><th>Cost</th></tr>
+    <tr><td>Look up by key, count, dedupe</td><td>Map / Set</td><td>O(1)</td></tr>
+    <tr><td>Items in arrival order</td><td>Queue</td><td>O(1)</td></tr>
+    <tr><td>Most recent first, undo, matching</td><td>Stack</td><td>O(1)</td></tr>
+    <tr><td>Smallest or largest, repeatedly</td><td>Heap</td><td>O(log n)</td></tr>
+    <tr><td>Sorted data that changes, ranges</td><td>Balanced BST / B+tree</td><td>O(log n)</td></tr>
+    <tr><td>Prefix lookups</td><td>Trie</td><td>O(word length)</td></tr>
+    <tr><td>Find in sorted array, minimum that works</td><td>Binary search</td><td>O(log n)</td></tr>
+    <tr><td>Fewest hops</td><td>BFS</td><td>O(V + E)</td></tr>
+    <tr><td>Cheapest weighted path</td><td>Dijkstra</td><td>O((V + E) log V)</td></tr>
+    <tr><td>Order with dependencies</td><td>Topological sort</td><td>O(V + E)</td></tr>
+    <tr><td>Merge groups, are they connected</td><td>Union-find</td><td>about O(1)</td></tr>
+    <tr><td>All combinations</td><td>Backtracking</td><td>exponential</td></tr>
+    <tr><td>Best answer from overlapping subproblems</td><td>DP</td><td>states × work</td></tr>
+    <tr><td>O(1) lookup plus O(1) ordering</td><td>Map + doubly linked list (LRU)</td><td>O(1)</td></tr>
+  </table>
+</section>
+
+<section class="ch" id="bigo">
+  <h2>Complexity classes</h2>
+  <table>
+    <tr><th>Big O</th><th>Name</th><th>Typical source</th><th>n = 1M feels like</th></tr>
+    <tr><td>O(1)</td><td>constant</td><td>hash lookup, array index</td><td>instant</td></tr>
+    <tr><td>O(log n)</td><td>logarithmic</td><td>binary search, heap op, B+tree</td><td>~20 steps</td></tr>
+    <tr><td>O(n)</td><td>linear</td><td>one pass</td><td>milliseconds</td></tr>
+    <tr><td>O(n log n)</td><td>linearithmic</td><td>good sorting</td><td>~20M steps, fine</td></tr>
+    <tr><td>O(n²)</td><td>quadratic</td><td>nested loops</td><td>10¹² steps, too slow</td></tr>
+    <tr><td>O(2ⁿ), O(n!)</td><td>exponential</td><td>subsets, permutations</td><td>only for n under ~20</td></tr>
+  </table>
+  <p class="lead">Rough guide from input size: n up to 10⁴ allows O(n²). n up to 10⁶ needs O(n log n) or better.</p>
+  <h4>Words interviewers use</h4>
+  <table>
+    <tr><td>Amortized</td><td>Average cost per operation over a long run. A dynamic array push is O(1) amortized even though a resize is O(n).</td></tr>
+    <tr><td>Average vs worst</td><td>Hash map O(1) average, O(n) worst. Quick sort n log n average, n² worst. Say both.</td></tr>
+    <tr><td>Space</td><td>Extra memory you allocate, plus recursion depth.</td></tr>
+    <tr><td>Stable sort</td><td>Equal items keep their original order.</td></tr>
+    <tr><td>In place</td><td>O(1) extra memory, apart from recursion.</td></tr>
+  </table>
+</section>
+
+<section class="ch" id="compare">
+  <h2>Array vs linked list vs hash map</h2>
+  <table>
+    <tr><th>Operation</th><th>Array</th><th>Linked list</th><th>Hash map</th></tr>
+    <tr><td>Access by index</td><td>O(1)</td><td>O(n)</td><td>n/a</td></tr>
+    <tr><td>Search by value</td><td>O(n), O(log n) if sorted</td><td>O(n)</td><td>O(1) by key</td></tr>
+    <tr><td>Insert / delete at end</td><td>O(1) amortized</td><td>O(1) with tail</td><td>O(1)</td></tr>
+    <tr><td>Insert / delete at front or middle</td><td>O(n), shifts</td><td>O(1) if you hold the node</td><td>O(1)</td></tr>
+    <tr><td>Memory</td><td>contiguous, cache friendly</td><td>scattered, a pointer per node</td><td>extra for buckets</td></tr>
+  </table>
+  <p class="lead">Arrays win most real benchmarks because the CPU cache loves contiguous memory. Linked lists win when you hold node references and splice often, as in an LRU cache.</p>
+</section>
+
+<section class="ch" id="method">
+  <h2>The 6 step method (say it out loud)</h2>
+  <p>Interviewers grade how you think as much as the code. Narrate everything.</p>
+  <table>
+    <tr><td>1. Repeat</td><td>"So I get X and return Y." Confirms you understood.</td></tr>
+    <tr><td>2. Clarify</td><td>Empty input? Duplicates? Negatives? Sorted? Size of n? Can I modify the input?</td></tr>
+    <tr><td>3. Example</td><td>Walk one small example by hand, plus one edge case.</td></tr>
+    <tr><td>4. Brute force</td><td>Say it with its Big O. Don't code it unless asked.</td></tr>
+    <tr><td>5. Improve, then code</td><td>Name the pattern ("hash map", "two pointers"). Code it clean, with good names.</td></tr>
+    <tr><td>6. Test</td><td>Run your example through the code line by line. Then edge cases. Then state time and space.</td></tr>
+  </table>
+  <h4>Which pattern? Look at the input</h4>
+  <table>
+    <tr><th>If you see</th><th>Try</th></tr>
+    <tr><td>"Have I seen this?", counts, pairs</td><td>Map or Set</td></tr>
+    <tr><td>Sorted array, palindrome, in-place rewrite</td><td>Two pointers</td></tr>
+    <tr><td>Best substring or subarray</td><td>Sliding window</td></tr>
+    <tr><td>Matching pairs, nesting, "most recent"</td><td>Stack</td></tr>
+    <tr><td>Sorted plus find, or "minimum X that works"</td><td>Binary search</td></tr>
+    <tr><td>Tree depth or path</td><td>Recursion (DFS)</td></tr>
+    <tr><td>Level by level, fewest steps</td><td>BFS with a queue</td></tr>
+    <tr><td>Grid, connected areas</td><td>DFS or BFS flood fill</td></tr>
+    <tr><td>Ranges, meetings, schedules</td><td>Sort by start, then merge</td></tr>
+    <tr><td>"How many ways", best value from smaller cases</td><td>DP</td></tr>
+  </table>
+  <h4>When stuck</h4>
+  <ul><li>"Let me try a smaller example." Then do it.</li><li>"I'll start with the brute force so we have something correct, then optimise."</li><li>Ask: "Am I on the right track?" Interviewers usually nudge.</li></ul>
+</section>
+
+<section class="ch" id="ts">
+  <h2>TypeScript cheat sheet</h2>
+  <div class="cols"><div>
+  <pre><code><span class="c">// Map: counts, value -&gt; index</span>
+<span class="k">const</span> m = <span class="k">new</span> Map&lt;number, number&gt;();
+m.set(k, (m.<span class="k">get</span>(k) ?? <span class="n">0</span>) + <span class="n">1</span>);
+m.has(k); m.<span class="k">get</span>(k)!; m.delete(k);
+<span class="k">for</span> (<span class="k">const</span> [k, v] <span class="k">of</span> m) {}
+[...m.values()]
+
+<span class="c">// Set</span>
+<span class="k">const</span> s = <span class="k">new</span> Set&lt;string&gt;();
+s.add(x); s.has(x); s.size;</code></pre>
+  </div><div>
+  <pre><code><span class="c">// Arrays</span>
+<span class="k">const</span> a = Array.from({ length: n }, () =&gt; []);
+a.sort((x, y) =&gt; x - y);   <span class="c">// ALWAYS pass this</span>
+a.slice(i, j); a.at(-<span class="n">1</span>);
+<span class="k">const</span> stack = []; stack.push(x); stack.pop();
+
+<span class="c">// Strings</span>
+<span class="k">for</span> (<span class="k">const</span> c <span class="k">of</span> str) {}
+[...str].sort().join(<span class="s">""</span>);
+str.toLowerCase(); /[a-z0-<span class="n">9</span>]/i.test(c)
+Math.floor((lo + hi) / <span class="n">2</span>); lo + hi &gt;&gt; <span class="n">1</span></code></pre>
+  </div></div>
+  <ul><li><code>[10, 9, 1].sort()</code> gives <code>[1, 10, 9]</code> because it sorts as strings. Always pass a compare function.</li>
+  <li><code>queue.shift()</code> is O(n). For BFS use a head index or level arrays.</li>
+  <li><code>??</code> treats only null and undefined as missing. <code>||</code> also treats 0 as missing, which breaks counts.</li></ul>
+</section>
+
+<div class="partHead" id="part1"><h1>Part 1 · Concepts</h1><p class="lead">How things work, what they cost, where you've already met them.</p></div>
+<section class="ch" id="cc-hashing"><h2>Hash tables</h2><p>The most used structure in interviews and in production.</p><article id="c-hash-map" class="page">
+  <h2>Hash map</h2>
+  <p class="what">Stores key to value pairs with O(1) average lookup, insert and delete.</p>
+  <h4>How it works</h4><p>A hash function turns the key into a number, and modulo the array size picks a bucket. Two keys can land in the same bucket (a collision), so each bucket holds a short list (chaining). When the table gets more than about 75% full, it doubles and rehashes everything, so chains stay short. That resize is O(n), but it happens rarely, so the average cost per insert stays O(1) (amortized).</p>
+  <table><tr><td>get / set / delete</td><td><code>O(1) average, O(n) worst (everything collides)</code></td></tr><tr><td>resize</td><td><code>O(n), rare, amortized O(1)</code></td></tr><tr><td>iterate</td><td><code>O(n)</code></td></tr></table>
+  <h4>Reach for it when</h4><ul><li>Have I seen this before?</li><li>Count things</li><li>Look up by id</li><li>Group by a key</li><li>Cache results (memoize)</li></ul>
+  <details><summary>Implementation (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">class</span> HashMap&lt;V&gt; {
+  <span class="k">private</span> buckets: [string, V][][];
+  size = <span class="n">0</span>;
+  constructor(capacity = <span class="n">8</span>) { this.buckets = Array.from({ length: capacity }, () =&gt; []); }
+
+  <span class="k">private</span> index(key: string, cap = this.buckets.length): number {
+    <span class="k">let</span> h = <span class="n">2166136261</span>; <span class="c">// FNV-1a: mix every char into the hash</span>
+    <span class="k">for</span> (<span class="k">let</span> i = <span class="n">0</span>; i &lt; key.length; i++) { h ^= key.charCodeAt(i); h = Math.imul(h, <span class="n">16777619</span>); }
+    <span class="k">return</span> (h &gt;&gt;&gt; <span class="n">0</span>) % cap;
+  }
+  set(key: string, value: V): <span class="k">void</span> {
+    <span class="k">const</span> bucket = this.buckets[this.index(key)];
+    <span class="k">const</span> hit = bucket.find(e =&gt; e[<span class="n">0</span>] === key);
+    <span class="k">if</span> (hit) { hit[<span class="n">1</span>] = value; <span class="k">return</span>; }
+    bucket.push([key, value]);
+    <span class="k">if</span> (++this.size / this.buckets.length &gt; <span class="n">0</span>.<span class="n">75</span>) this.resize(); <span class="c">// keep chains short</span>
+  }
+  <span class="k">get</span>(key: string): V | <span class="k">undefined</span> {
+    <span class="k">return</span> this.buckets[this.index(key)].find(e =&gt; e[<span class="n">0</span>] === key)?.[<span class="n">1</span>];
+  }
+  delete(key: string): boolean {
+    <span class="k">const</span> bucket = this.buckets[this.index(key)];
+    <span class="k">const</span> i = bucket.findIndex(e =&gt; e[<span class="n">0</span>] === key);
+    <span class="k">if</span> (i &lt; <span class="n">0</span>) <span class="k">return</span> <span class="k">false</span>;
+    bucket.splice(i, <span class="n">1</span>); this.size--;
+    <span class="k">return</span> <span class="k">true</span>;
+  }
+  <span class="k">private</span> resize(): <span class="k">void</span> {
+    <span class="k">const</span> old = this.buckets.flat();
+    this.buckets = Array.from({ length: this.buckets.length * <span class="n">2</span> }, () =&gt; []);
+    <span class="k">for</span> (<span class="k">const</span> [k, v] <span class="k">of</span> old) this.buckets[this.index(k)].push([k, v]); <span class="c">// rehash everything</span>
+  }
+  <span class="k">get</span> capacity() { <span class="k">return</span> this.buckets.length; }
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Plain objects as maps: keys become strings, and there are prototype keys. Use Map.</li><li>Map compares object keys by reference, not by value. Use a string key like `${r},${c}`.</li><li>Worst case O(n) is real: attackers can force collisions (hash flooding), which is why languages use seeded hashes.</li></ul>
+  <div class="real"><b>In real systems:</b> JS Map and Set. Redis is one big hash table, and Redis hashes (HSET) are maps inside it. Databases use hash joins and hash indexes.</div>
+  <div class="say"><b>Say out loud:</b> Average O(1) because the hash spreads keys across buckets and the table resizes to keep chains short. Worst case O(n) if everything collides.</div>
+</article></section><section class="ch" id="cc-linear"><h2>Queues and stacks</h2><p>Order matters: first in first out, or last in first out.</p><article id="c-queue" class="page">
+  <h2>Queue and stack</h2>
+  <p class="what">A queue gives items back in the order they arrived (FIFO). A stack gives back the most recent first (LIFO).</p>
+  <h4>How it works</h4><p>Stack: a JS array with push and pop, both O(1). Queue: a JS array with shift() is O(n), because every element moves down one slot. Instead, keep a head index that moves forward, and occasionally slice off the used front. A deque (double-ended) supports both ends, usually as a ring buffer.</p>
+  <table><tr><td>stack push / pop / peek</td><td><code>O(1)</code></td></tr><tr><td>queue enqueue / dequeue (head index)</td><td><code>O(1) amortized</code></td></tr><tr><td>array.shift()</td><td><code>O(n), avoid in loops</code></td></tr></table>
+  <h4>Reach for it when</h4><ul><li>Queue: BFS, task processing in order, buffering</li><li>Stack: matching brackets, undo, DFS without recursion, 'most recent'</li><li>Monotonic stack: next greater element</li></ul>
+  <details><summary>Implementation (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">class</span> Queue&lt;T&gt; {
+  <span class="k">private</span> items: T[] = [];
+  <span class="k">private</span> head = <span class="n">0</span>; <span class="c">// index of the front; avoids O(n) shift()</span>
+  enqueue(x: T) { this.items.push(x); }
+  dequeue(): T | <span class="k">undefined</span> {
+    <span class="k">if</span> (this.head === this.items.length) <span class="k">return</span> <span class="k">undefined</span>;
+    <span class="k">const</span> x = this.items[this.head++];
+    <span class="k">if</span> (this.head &gt; <span class="n">1024</span> &amp;&amp; this.head * <span class="n">2</span> &gt; this.items.length) { <span class="c">// reclaim memory now and then</span>
+      this.items = this.items.slice(this.head); this.head = <span class="n">0</span>;
+    }
+    <span class="k">return</span> x;
+  }
+  peek() { <span class="k">return</span> this.items[this.head]; }
+  <span class="k">get</span> size() { <span class="k">return</span> this.items.length - this.head; }
+}
+<span class="c">// Stack needs no class: push() and pop() on an array are both O(1).</span></code></pre></details>
+  <h4>Traps</h4><ul><li>shift() inside a BFS loop makes it O(n²) on big inputs.</li><li>Recursion is a hidden stack. Deep recursion overflows; switch to an explicit stack.</li></ul>
+  <div class="real"><b>In real systems:</b> Bull and BullMQ are queues on Redis lists. Node's event loop runs queues of callbacks. Kafka partitions are ordered logs.</div>
+  <div class="say"><b>Say out loud:</b> In JS, shift is linear, so for a real queue I keep a head pointer.</div>
+</article></section><section class="ch" id="cc-heaps"><h2>Heaps</h2><p>Always know the smallest (or largest) item, cheaply.</p><article id="c-min-heap" class="page">
+  <h2>Binary heap (priority queue)</h2>
+  <p class="what">Gives you the smallest item in O(1) and removes it in O(log n). A max heap is the same with the comparison flipped.</p>
+  <h4>How it works</h4><p>A complete binary tree stored in an array: the children of i are 2i+1 and 2i+2, and the parent is (i-1)/2. Rule: every parent is smaller than its children. Push: add at the end and swap upward while smaller than the parent. Pop: take the root, move the last item to the root, and swap downward with the smaller child. The tree is always balanced, so height is log n.</p>
+  <table><tr><td>peek min</td><td><code>O(1)</code></td></tr><tr><td>push / pop</td><td><code>O(log n)</code></td></tr><tr><td>build from n items</td><td><code>O(n) (heapify)</code></td></tr><tr><td>search for any item</td><td><code>O(n)</code></td></tr></table>
+  <h4>Reach for it when</h4><ul><li>Top k, k smallest, k most frequent</li><li>Always process the cheapest or earliest next (Dijkstra, scheduling)</li><li>Merge k sorted lists</li><li>Running median (two heaps)</li></ul>
+  <details><summary>Implementation (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">class</span> MinHeap&lt;T&gt; {
+  <span class="k">private</span> a: T[] = [];
+  constructor(<span class="k">private</span> cmp: (x: T, y: T) =&gt; number) {}
+  <span class="k">get</span> size() { <span class="k">return</span> this.a.length; }
+  peek() { <span class="k">return</span> this.a[<span class="n">0</span>]; }
+  push(x: T) {
+    this.a.push(x);
+    <span class="k">let</span> i = this.a.length - <span class="n">1</span>;
+    <span class="k">while</span> (i &gt; <span class="n">0</span>) { <span class="c">// sift up: swap with parent while smaller</span>
+      <span class="k">const</span> p = (i - <span class="n">1</span>) &gt;&gt; <span class="n">1</span>;
+      <span class="k">if</span> (this.cmp(this.a[i], this.a[p]) &gt;= <span class="n">0</span>) <span class="k">break</span>;
+      [this.a[i], this.a[p]] = [this.a[p], this.a[i]]; i = p;
+    }
+  }
+  pop(): T | <span class="k">undefined</span> {
+    <span class="k">if</span> (this.a.length === <span class="n">0</span>) <span class="k">return</span> <span class="k">undefined</span>;
+    <span class="k">const</span> top = this.a[<span class="n">0</span>], last = this.a.pop()!;
+    <span class="k">if</span> (this.a.length) {
+      this.a[<span class="n">0</span>] = last;
+      <span class="k">let</span> i = <span class="n">0</span>; <span class="k">const</span> n = this.a.length;
+      <span class="k">while</span> (<span class="k">true</span>) { <span class="c">// sift down: swap with the smaller child</span>
+        <span class="k">const</span> l = <span class="n">2</span> * i + <span class="n">1</span>, r = l + <span class="n">1</span>; <span class="k">let</span> m = i;
+        <span class="k">if</span> (l &lt; n &amp;&amp; this.cmp(this.a[l], this.a[m]) &lt; <span class="n">0</span>) m = l;
+        <span class="k">if</span> (r &lt; n &amp;&amp; this.cmp(this.a[r], this.a[m]) &lt; <span class="n">0</span>) m = r;
+        <span class="k">if</span> (m === i) <span class="k">break</span>;
+        [this.a[i], this.a[m]] = [this.a[m], this.a[i]]; i = m;
+      }
+    }
+    <span class="k">return</span> top;
+  }
+}
+<span class="c">// Max heap: new MinHeap&lt;number&gt;((a, b) =&gt; b - a)</span></code></pre></details>
+  <h4>Traps</h4><ul><li>JS has no built-in heap. Be ready to write it, or say you'd use a library and write it if asked.</li><li>For top k largest, keep a MIN heap of size k and pop when it grows past k. O(n log k).</li><li>A heap is not sorted. Only the top is guaranteed.</li></ul>
+  <div class="real"><b>In real systems:</b> Node and libuv keep timers in a min heap (which setTimeout fires next). Job schedulers order delayed jobs the same way (BullMQ uses a Redis sorted set for delayed jobs).</div>
+  <div class="say"><b>Say out loud:</b> I only need the next smallest each time, not a full sort, so a heap gives log n per operation.</div>
+</article></section><section class="ch" id="cc-trees"><h2>Trees</h2><p>Hierarchies, sorted data, prefixes.</p><article id="c-traversals" class="page">
+  <h2>Tree traversals</h2>
+  <p class="what">Four ways to visit every node: preorder, inorder, postorder (all depth-first), and level order (breadth-first).</p>
+  <h4>How it works</h4><p>Preorder: node, then left, then right. Good for copying or serializing a tree. Inorder: left, node, right. On a BST this gives sorted order. Postorder: left, right, node. Good when children must be handled first (deleting, computing sizes). Level order uses a queue and is covered in the problems book. Any recursive traversal can be written with an explicit stack to avoid stack overflow on deep trees.</p>
+  <table><tr><td>any full traversal</td><td><code>O(n) time</code></td></tr><tr><td>space</td><td><code>O(h) for DFS (h = height), O(width) for BFS</code></td></tr></table>
+  <h4>Reach for it when</h4><ul><li>Need sorted order from a BST: inorder</li><li>Serialize or clone: preorder</li><li>Combine answers from children (height, sums): postorder</li><li>Shortest path or levels: BFS</li></ul>
+  <details><summary>Implementation (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">type</span> TNode = { val: number; left: TNode | <span class="k">null</span>; right: TNode | <span class="k">null</span> };
+<span class="k">const</span> node = (val: number, left: TNode | <span class="k">null</span> = <span class="k">null</span>, right: TNode | <span class="k">null</span> = <span class="k">null</span>): TNode =&gt; ({ val, left, right });
+
+<span class="k">function</span> preorder(n: TNode | <span class="k">null</span>, out: number[] = []): number[] {  <span class="c">// root, left, right</span>
+  <span class="k">if</span> (n) { out.push(n.val); preorder(n.left, out); preorder(n.right, out); }
+  <span class="k">return</span> out;
+}
+<span class="k">function</span> inorder(n: TNode | <span class="k">null</span>, out: number[] = []): number[] {   <span class="c">// left, root, right (sorted for a BST)</span>
+  <span class="k">if</span> (n) { inorder(n.left, out); out.push(n.val); inorder(n.right, out); }
+  <span class="k">return</span> out;
+}
+<span class="k">function</span> postorder(n: TNode | <span class="k">null</span>, out: number[] = []): number[] { <span class="c">// left, right, root (delete, sizes)</span>
+  <span class="k">if</span> (n) { postorder(n.left, out); postorder(n.right, out); out.push(n.val); }
+  <span class="k">return</span> out;
+}
+<span class="k">function</span> inorderIterative(root: TNode | <span class="k">null</span>): number[] {           <span class="c">// no recursion, no stack overflow</span>
+  <span class="k">const</span> out: number[] = [], stack: TNode[] = [];
+  <span class="k">let</span> cur = root;
+  <span class="k">while</span> (cur || stack.length) {
+    <span class="k">while</span> (cur) { stack.push(cur); cur = cur.left; } <span class="c">// go all the way left</span>
+    cur = stack.pop()!;
+    out.push(cur.val);
+    cur = cur.right;
+  }
+  <span class="k">return</span> out;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>A skewed tree has h = n, so recursion depth can be n.</li><li>Mixing up the orders: say the rule out loud before coding.</li></ul>
+  <div class="real"><b>In real systems:</b> Rendering a DOM or React tree, walking an AST (linters, bundlers), computing folder sizes.</div>
+  <div class="say"><b>Say out loud:</b> Inorder on a BST gives sorted output. Postorder when the parent needs the children's answers first.</div>
+</article><article id="c-bst" class="page">
+  <h2>Binary search tree</h2>
+  <p class="what">A tree where every left subtree is smaller and every right subtree is larger, so search halves the space at each step.</p>
+  <h4>How it works</h4><p>Search, insert and delete walk down one path, so they cost O(h). Balanced, h is log n. If you insert sorted data, it becomes a linked list and h is n. Self-balancing trees (red-black, AVL) fix this with rotations. Deleting a node with two children: copy in the next larger value (the in-order successor), then delete that one.</p>
+  <table><tr><td>search / insert / delete</td><td><code>O(log n) balanced, O(n) skewed</code></td></tr><tr><td>min / max</td><td><code>O(h)</code></td></tr><tr><td>in-order walk</td><td><code>O(n), sorted</code></td></tr></table>
+  <h4>Reach for it when</h4><ul><li>Sorted data that changes often</li><li>Range queries (everything between a and b)</li><li>Floor and ceiling lookups</li></ul>
+  <details><summary>Implementation (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">class</span> BST {
+  root: TNode | <span class="k">null</span> = <span class="k">null</span>;
+  insert(v: number) {
+    <span class="k">if</span> (!this.root) { this.root = node(v); <span class="k">return</span>; }
+    <span class="k">let</span> n = this.root;
+    <span class="k">while</span> (<span class="k">true</span>) {
+      <span class="k">if</span> (v === n.val) <span class="k">return</span>;                       <span class="c">// no duplicates</span>
+      <span class="k">const</span> side = v &lt; n.val ? <span class="s">"left"</span> : <span class="s">"right"</span>;
+      <span class="k">if</span> (!n[side]) { n[side] = node(v); <span class="k">return</span>; }
+      n = n[side]!;
+    }
+  }
+  has(v: number): boolean {
+    <span class="k">let</span> n = this.root;
+    <span class="k">while</span> (n) { <span class="k">if</span> (v === n.val) <span class="k">return</span> <span class="k">true</span>; n = v &lt; n.val ? n.left : n.right; }
+    <span class="k">return</span> <span class="k">false</span>;
+  }
+  delete(v: number) { this.root = del(this.root, v); }
+}
+<span class="k">function</span> del(n: TNode | <span class="k">null</span>, v: number): TNode | <span class="k">null</span> {
+  <span class="k">if</span> (!n) <span class="k">return</span> <span class="k">null</span>;
+  <span class="k">if</span> (v &lt; n.val) n.left = del(n.left, v);
+  <span class="k">else</span> <span class="k">if</span> (v &gt; n.val) n.right = del(n.right, v);
+  <span class="k">else</span> {
+    <span class="k">if</span> (!n.left) <span class="k">return</span> n.right;                     <span class="c">// 0 or 1 child: lift the child</span>
+    <span class="k">if</span> (!n.right) <span class="k">return</span> n.left;
+    <span class="k">let</span> s = n.right; <span class="k">while</span> (s.left) s = s.left;      <span class="c">// 2 children: copy in-order successor</span>
+    n.val = s.val;
+    n.right = del(n.right, s.val);
+  }
+  <span class="k">return</span> n;
+}
+<span class="k">function</span> isValidBST(n: TNode | <span class="k">null</span>, lo = -Infinity, hi = Infinity): boolean {
+  <span class="k">if</span> (!n) <span class="k">return</span> <span class="k">true</span>;
+  <span class="k">if</span> (n.val &lt;= lo || n.val &gt;= hi) <span class="k">return</span> <span class="k">false</span>;      <span class="c">// every node must fit its ancestors' range</span>
+  <span class="k">return</span> isValidBST(n.left, lo, n.val) &amp;&amp; isValidBST(n.right, n.val, hi);
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Validating only parent and child is wrong. Each node must fit the range set by all its ancestors.</li><li>Duplicates: decide a rule (ignore, count, or always go right).</li></ul>
+  <div class="real"><b>In real systems:</b> Database indexes are B+trees: the same idea, but each node holds hundreds of keys so the tree is only 3 or 4 levels deep, which means few disk reads. That's why an index lookup is fast.</div>
+  <div class="say"><b>Say out loud:</b> It's O(log n) only if it stays balanced. In practice that's a red-black tree, or a B+tree in a database.</div>
+</article><article id="c-trie" class="page">
+  <h2>Trie (prefix tree)</h2>
+  <p class="what">A tree of characters where each path from the root spells a word. Finds words and prefixes in O(length of word).</p>
+  <h4>How it works</h4><p>Each node has a map from character to child, plus a flag for 'a word ends here'. Insert walks or creates one node per character. Search walks and checks the end flag. startsWith just checks the path exists. Autocomplete walks to the prefix node, then DFS collects words below it.</p>
+  <table><tr><td>insert / search / startsWith</td><td><code>O(L), L = word length</code></td></tr><tr><td>autocomplete</td><td><code>O(L + size of results)</code></td></tr><tr><td>space</td><td><code>O(total characters), can be large</code></td></tr></table>
+  <h4>Reach for it when</h4><ul><li>Autocomplete and type-ahead</li><li>Prefix matching</li><li>Word games and dictionaries</li><li>Many lookups against a fixed set of strings</li></ul>
+  <details><summary>Implementation (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">type</span> TrieNode = { kids: Map&lt;string, TrieNode&gt;; end: boolean };
+<span class="k">class</span> Trie {
+  <span class="k">private</span> root: TrieNode = { kids: <span class="k">new</span> Map(), end: <span class="k">false</span> };
+  insert(word: string) {
+    <span class="k">let</span> n = this.root;
+    <span class="k">for</span> (<span class="k">const</span> c <span class="k">of</span> word) {
+      <span class="k">if</span> (!n.kids.has(c)) n.kids.set(c, { kids: <span class="k">new</span> Map(), end: <span class="k">false</span> });
+      n = n.kids.<span class="k">get</span>(c)!;
+    }
+    n.end = <span class="k">true</span>;
+  }
+  <span class="k">private</span> walk(s: string): TrieNode | <span class="k">null</span> {
+    <span class="k">let</span> n: TrieNode | <span class="k">undefined</span> = this.root;
+    <span class="k">for</span> (<span class="k">const</span> c <span class="k">of</span> s) { n = n.kids.<span class="k">get</span>(c); <span class="k">if</span> (!n) <span class="k">return</span> <span class="k">null</span>; }
+    <span class="k">return</span> n;
+  }
+  search(word: string) { <span class="k">return</span> this.walk(word)?.end === <span class="k">true</span>; }
+  startsWith(prefix: string) { <span class="k">return</span> this.walk(prefix) !== <span class="k">null</span>; }
+  autocomplete(prefix: string, limit = <span class="n">5</span>): string[] {
+    <span class="k">const</span> start = this.walk(prefix), out: string[] = [];
+    <span class="k">const</span> dfs = (n: TrieNode, path: string) =&gt; {
+      <span class="k">if</span> (out.length &gt;= limit) <span class="k">return</span>;
+      <span class="k">if</span> (n.end) out.push(path);
+      <span class="k">for</span> (<span class="k">const</span> c <span class="k">of</span> [...n.kids.keys()].sort()) dfs(n.kids.<span class="k">get</span>(c)!, path + c);
+    };
+    <span class="k">if</span> (start) dfs(start, prefix);
+    <span class="k">return</span> out;
+  }
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Forgetting the end flag: 'ca' is a prefix, not a word.</li><li>Memory heavy. For a few lookups, a Set plus startsWith is simpler.</li></ul>
+  <div class="real"><b>In real systems:</b> HTTP routers (Fastify's find-my-way uses a radix tree, a compressed trie), IP routing tables, search box suggestions.</div>
+  <div class="say"><b>Say out loud:</b> Lookups cost the word length, not the dictionary size, which is why routers and autocomplete use tries.</div>
+</article></section><section class="ch" id="cc-graphs"><h2>Graphs</h2><p>Things connected to things. Most 'medium' problems are secretly graphs.</p><article id="c-graph" class="page">
+  <h2>Graphs, BFS and DFS</h2>
+  <p class="what">Nodes connected by edges. BFS explores level by level and finds the fewest hops. DFS goes deep first and is good for reachability and cycles.</p>
+  <h4>How it works</h4><p>Store graphs as an adjacency list (each node keeps a list of neighbours), usually built from an edge list. BFS: a queue plus a distance array. The first time you reach a node is its shortest hop count. DFS: recursion or a stack, plus a visited set. Mark a node visited when you add it, so it's never added twice. Connected components: start a DFS from every unvisited node and count the starts.</p>
+  <table><tr><td>BFS / DFS</td><td><code>O(V + E)</code></td></tr><tr><td>adjacency list space</td><td><code>O(V + E)</code></td></tr><tr><td>adjacency matrix</td><td><code>O(V²) space, O(1) edge check</code></td></tr></table>
+  <h4>Reach for it when</h4><ul><li>Fewest steps or hops: BFS</li><li>Can I reach it? Are there cycles? Count groups: DFS</li><li>Grids are graphs: each cell has 4 neighbours</li></ul>
+  <details><summary>Implementation (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> buildGraph(n: number, edges: [number, number][], directed = <span class="k">false</span>): number[][] {
+  <span class="k">const</span> adj: number[][] = Array.from({ length: n }, () =&gt; []);
+  <span class="k">for</span> (<span class="k">const</span> [a, b] <span class="k">of</span> edges) { adj[a].push(b); <span class="k">if</span> (!directed) adj[b].push(a); }
+  <span class="k">return</span> adj;
+}
+<span class="k">function</span> bfsDistances(adj: number[][], src: number): number[] {
+  <span class="k">const</span> dist = <span class="k">new</span> Array(adj.length).fill(-<span class="n">1</span>);
+  dist[src] = <span class="n">0</span>;
+  <span class="k">const</span> q = [src];
+  <span class="k">for</span> (<span class="k">let</span> h = <span class="n">0</span>; h &lt; q.length; h++) {               <span class="c">// head index = O(1) dequeue</span>
+    <span class="k">const</span> u = q[h];
+    <span class="k">for</span> (<span class="k">const</span> v <span class="k">of</span> adj[u]) <span class="k">if</span> (dist[v] === -<span class="n">1</span>) { dist[v] = dist[u] + <span class="n">1</span>; q.push(v); }
+  }
+  <span class="k">return</span> dist;                                       <span class="c">// -1 = unreachable</span>
+}
+<span class="k">function</span> dfsOrder(adj: number[][], src: number): number[] {
+  <span class="k">const</span> seen = <span class="k">new</span> Set&lt;number&gt;(), out: number[] = [];
+  <span class="k">const</span> go = (u: number) =&gt; {
+    seen.add(u); out.push(u);
+    <span class="k">for</span> (<span class="k">const</span> v <span class="k">of</span> adj[u]) <span class="k">if</span> (!seen.has(v)) go(v);
+  };
+  go(src);
+  <span class="k">return</span> out;
+}
+<span class="k">function</span> countComponents(n: number, edges: [number, number][]): number {
+  <span class="k">const</span> adj = buildGraph(n, edges), seen = <span class="k">new</span> Array(n).fill(<span class="k">false</span>);
+  <span class="k">let</span> count = <span class="n">0</span>;
+  <span class="k">for</span> (<span class="k">let</span> s = <span class="n">0</span>; s &lt; n; s++) {
+    <span class="k">if</span> (seen[s]) <span class="k">continue</span>;
+    count++;
+    <span class="k">const</span> stack = [s]; seen[s] = <span class="k">true</span>;
+    <span class="k">while</span> (stack.length) <span class="k">for</span> (<span class="k">const</span> v <span class="k">of</span> adj[stack.pop()!]) <span class="k">if</span> (!seen[v]) { seen[v] = <span class="k">true</span>; stack.push(v); }
+  }
+  <span class="k">return</span> count;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Forgetting visited: infinite loop on any cycle.</li><li>BFS gives shortest paths only when every edge has the same weight. Weighted needs Dijkstra.</li><li>Undirected: add the edge both ways.</li></ul>
+  <div class="real"><b>In real systems:</b> Service dependency maps, social graphs, crawlers, garbage collectors (mark reachable objects).</div>
+  <div class="say"><b>Say out loud:</b> Shortest path with equal weights is BFS, O(V + E). With weights I'd switch to Dijkstra.</div>
+</article><article id="c-topo-sort" class="page">
+  <h2>Topological sort</h2>
+  <p class="what">Orders tasks so every task comes after the tasks it depends on. Only possible if there are no cycles.</p>
+  <h4>How it works</h4><p>Kahn's algorithm: count incoming edges (indegree) for each node. Start with every node at zero, meaning nothing blocks it. Take one, add it to the order, and lower the indegree of its neighbours; any that hit zero become ready. If the order ends up shorter than the number of nodes, the rest are stuck in a cycle.</p>
+  <table><tr><td>Kahn's algorithm</td><td><code>O(V + E)</code></td></tr></table>
+  <h4>Reach for it when</h4><ul><li>Task or job dependencies</li><li>Course prerequisites</li><li>Build order</li><li>Detect circular dependencies</li></ul>
+  <details><summary>Implementation (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="c">// edges [a, b] mean "a must happen before b". Returns an order, or null if there's a cycle.</span>
+<span class="k">function</span> topoSort(n: number, edges: [number, number][]): number[] | <span class="k">null</span> {
+  <span class="k">const</span> adj = buildGraph(n, edges, <span class="k">true</span>), indegree = <span class="k">new</span> Array(n).fill(<span class="n">0</span>);
+  <span class="k">for</span> (<span class="k">const</span> [, b] <span class="k">of</span> edges) indegree[b]++;
+  <span class="k">const</span> ready: number[] = [];                        <span class="c">// nothing left blocking these</span>
+  <span class="k">for</span> (<span class="k">let</span> i = <span class="n">0</span>; i &lt; n; i++) <span class="k">if</span> (indegree[i] === <span class="n">0</span>) ready.push(i);
+  <span class="k">const</span> order: number[] = [];
+  <span class="k">for</span> (<span class="k">let</span> h = <span class="n">0</span>; h &lt; ready.length; h++) {
+    <span class="k">const</span> u = ready[h]; order.push(u);
+    <span class="k">for</span> (<span class="k">const</span> v <span class="k">of</span> adj[u]) <span class="k">if</span> (--indegree[v] === <span class="n">0</span>) ready.push(v);
+  }
+  <span class="k">return</span> order.length === n ? order : <span class="k">null</span>;          <span class="c">// leftovers = stuck in a cycle</span>
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Many valid orders can exist. Don't promise a specific one unless you sort the ready list.</li><li>Edge direction: define 'a before b' out loud.</li></ul>
+  <div class="real"><b>In real systems:</b> Build tools and monorepos (build packages in dependency order), migration ordering, BullMQ flows (child jobs before parent), package managers.</div>
+  <div class="say"><b>Say out loud:</b> It's a dependency graph. Kahn's algorithm gives an order, and leftover nodes mean a cycle.</div>
+</article><article id="c-dijkstra" class="page">
+  <h2>Dijkstra's shortest path</h2>
+  <p class="what">Shortest distance from one node to all others when edges have non-negative weights.</p>
+  <h4>How it works</h4><p>Keep a best-known distance for every node, starting at infinity, and 0 for the source. A min heap always gives the closest unfinished node. For each neighbour, if going through this node is shorter, update and push. Because weights are non-negative, the first time a node comes off the heap its distance is final. Skip stale heap entries.</p>
+  <table><tr><td>with a binary heap</td><td><code>O((V + E) log V)</code></td></tr></table>
+  <h4>Reach for it when</h4><ul><li>Weighted shortest path: cost, time, distance</li><li>Cheapest route, lowest latency path</li></ul>
+  <details><summary>Implementation (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="c">// edges [u, v, w]: directed, non-negative weights. Returns shortest distance to every node.</span>
+<span class="k">function</span> dijkstra(n: number, edges: [number, number, number][], src: number): number[] {
+  <span class="k">const</span> adj: [number, number][][] = Array.from({ length: n }, () =&gt; []);
+  <span class="k">for</span> (<span class="k">const</span> [u, v, w] <span class="k">of</span> edges) adj[u].push([v, w]);
+  <span class="k">const</span> dist = <span class="k">new</span> Array(n).fill(Infinity);
+  dist[src] = <span class="n">0</span>;
+  <span class="k">const</span> pq = <span class="k">new</span> MinHeap&lt;[number, number]&gt;((a, b) =&gt; a[<span class="n">0</span>] - b[<span class="n">0</span>]); <span class="c">// [distance, node]</span>
+  pq.push([<span class="n">0</span>, src]);
+  <span class="k">while</span> (pq.size) {
+    <span class="k">const</span> [d, u] = pq.pop()!;
+    <span class="k">if</span> (d &gt; dist[u]) <span class="k">continue</span>;                       <span class="c">// stale entry, already found shorter</span>
+    <span class="k">for</span> (<span class="k">const</span> [v, w] <span class="k">of</span> adj[u]) {
+      <span class="k">if</span> (d + w &lt; dist[v]) { dist[v] = d + w; pq.push([dist[v], v]); }
+    }
+  }
+  <span class="k">return</span> dist;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Negative weights break it (use Bellman-Ford).</li><li>Not skipping stale entries wastes work, and on some problems gives wrong answers.</li><li>With all weights equal, plain BFS is simpler and faster.</li></ul>
+  <div class="real"><b>In real systems:</b> Map routing uses variants of it (A*, contraction hierarchies). Network routing (OSPF) runs Dijkstra.</div>
+  <div class="say"><b>Say out loud:</b> Greedy with a min heap: always settle the closest node next. Works because weights can't be negative.</div>
+</article><article id="c-union-find" class="page">
+  <h2>Union-find (disjoint set)</h2>
+  <p class="what">Tracks which items are in the same group, with near O(1) merge and same-group checks.</p>
+  <h4>How it works</h4><p>Every item points to a parent, and the root names the group. find walks up to the root and flattens the path as it goes (path compression). union links one root under the other, attaching the shorter tree under the taller (union by rank). Together these make operations effectively constant time.</p>
+  <table><tr><td>find / union</td><td><code>about O(1) amortized (inverse Ackermann)</code></td></tr><tr><td>space</td><td><code>O(n)</code></td></tr></table>
+  <h4>Reach for it when</h4><ul><li>Group or merge sets as edges arrive</li><li>Detect a cycle in an undirected graph</li><li>Count connected components dynamically</li><li>Kruskal's minimum spanning tree</li></ul>
+  <details><summary>Implementation (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">class</span> UnionFind {
+  <span class="k">private</span> parent: number[]; <span class="k">private</span> rank: number[];
+  count: number;                                     <span class="c">// number of separate groups</span>
+  constructor(n: number) {
+    this.parent = Array.from({ length: n }, (_, i) =&gt; i);
+    this.rank = <span class="k">new</span> Array(n).fill(<span class="n">0</span>);
+    this.count = n;
+  }
+  find(x: number): number {
+    <span class="k">while</span> (this.parent[x] !== x) {
+      this.parent[x] = this.parent[this.parent[x]]; <span class="c">// path halving: flatten as we climb</span>
+      x = this.parent[x];
+    }
+    <span class="k">return</span> x;
+  }
+  union(a: number, b: number): boolean {
+    <span class="k">let</span> ra = this.find(a), rb = this.find(b);
+    <span class="k">if</span> (ra === rb) <span class="k">return</span> <span class="k">false</span>;                     <span class="c">// already together (in a graph: a cycle)</span>
+    <span class="k">if</span> (this.rank[ra] &lt; this.rank[rb]) [ra, rb] = [rb, ra];
+    this.parent[rb] = ra;                            <span class="c">// hang the shorter tree under the taller</span>
+    <span class="k">if</span> (this.rank[ra] === this.rank[rb]) this.rank[ra]++;
+    this.count--;
+    <span class="k">return</span> <span class="k">true</span>;
+  }
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Without path compression and rank it can be O(n) per find.</li><li>It can merge groups but not split them.</li></ul>
+  <div class="real"><b>In real systems:</b> Merging duplicate customer records or accounts that share a phone or email, clustering, image region labeling.</div>
+  <div class="say"><b>Say out loud:</b> If I only need 'are these connected' while merging groups, union-find is simpler than running BFS each time.</div>
+</article></section><section class="ch" id="cc-sorting"><h2>Sorting and searching</h2><p>Know how they work, when they're stable, and the binary search templates.</p><article id="c-merge-sort" class="page">
+  <h2>Merge sort</h2>
+  <p class="what">Split in half, sort each half, merge. Always O(n log n) and stable.</p>
+  <h4>How it works</h4><p>Recursively split down to one element, which is already sorted. Merging two sorted lists is a linear walk with two pointers. log n levels of splitting, n work per level. Stable means equal items keep their original order, which matters when sorting records by one field after another.</p>
+  <table><tr><td>time</td><td><code>O(n log n) always</code></td></tr><tr><td>space</td><td><code>O(n) extra</code></td></tr><tr><td>stable</td><td><code>yes</code></td></tr></table>
+  <h4>Reach for it when</h4><ul><li>Need guaranteed n log n</li><li>Need a stable sort</li><li>Linked lists (no random access needed)</li><li>Data too big for memory (external sort)</li></ul>
+  <details><summary>Implementation (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> mergeSort(a: number[]): number[] {
+  <span class="k">if</span> (a.length &lt;= <span class="n">1</span>) <span class="k">return</span> a;
+  <span class="k">const</span> mid = a.length &gt;&gt; <span class="n">1</span>;
+  <span class="k">const</span> l = mergeSort(a.slice(<span class="n">0</span>, mid)), r = mergeSort(a.slice(mid));
+  <span class="k">const</span> out: number[] = [];
+  <span class="k">let</span> i = <span class="n">0</span>, j = <span class="n">0</span>;
+  <span class="k">while</span> (i &lt; l.length &amp;&amp; j &lt; r.length) out.push(l[i] &lt;= r[j] ? l[i++] : r[j++]); <span class="c">// &lt;= keeps it stable</span>
+  <span class="k">return</span> out.concat(l.slice(i), r.slice(j));
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Use &lt;= in the merge to keep it stable.</li><li>slice() in every call costs memory. Fine for interviews; mention it.</li></ul>
+  <div class="real"><b>In real systems:</b> V8's Array.prototype.sort is TimSort (merge plus insertion sort) and is stable. Databases use external merge sort when a sort doesn't fit in memory; you'll see 'external merge' in Postgres EXPLAIN ANALYZE.</div>
+  <div class="say"><b>Say out loud:</b> Guaranteed n log n and stable, at the cost of O(n) extra memory.</div>
+</article><article id="c-quick-sort" class="page">
+  <h2>Quick sort</h2>
+  <p class="what">Pick a pivot, put smaller items left and larger right, then sort each side. Fast in practice, in place.</p>
+  <h4>How it works</h4><p>Partition: walk the range and swap anything smaller than the pivot to the front. Put the pivot right after them; it's now in its final position. Recurse on both sides. A good pivot splits evenly (n log n). A bad one, like always the first item on sorted input, gives O(n²). Middle or random pivots avoid that.</p>
+  <table><tr><td>time</td><td><code>O(n log n) average, O(n²) worst</code></td></tr><tr><td>space</td><td><code>O(log n) recursion</code></td></tr><tr><td>stable</td><td><code>no</code></td></tr></table>
+  <h4>Reach for it when</h4><ul><li>In-memory sort where memory matters</li><li>Quickselect: find the kth smallest in O(n) average</li></ul>
+  <details><summary>Implementation (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> quickSort(a: number[], lo = <span class="n">0</span>, hi = a.length - <span class="n">1</span>): number[] {
+  <span class="k">if</span> (lo &gt;= hi) <span class="k">return</span> a;
+  <span class="k">const</span> mid = lo + ((hi - lo) &gt;&gt; <span class="n">1</span>);
+  [a[mid], a[hi]] = [a[hi], a[mid]];                 <span class="c">// middle pivot dodges sorted-input worst case</span>
+  <span class="k">const</span> pivot = a[hi];
+  <span class="k">let</span> i = lo;                                        <span class="c">// everything left of i is &lt; pivot</span>
+  <span class="k">for</span> (<span class="k">let</span> j = lo; j &lt; hi; j++) <span class="k">if</span> (a[j] &lt; pivot) { [a[i], a[j]] = [a[j], a[i]]; i++; }
+  [a[i], a[hi]] = [a[hi], a[i]];                     <span class="c">// pivot lands in its final spot</span>
+  quickSort(a, lo, i - <span class="n">1</span>);
+  quickSort(a, i + <span class="n">1</span>, hi);
+  <span class="k">return</span> a;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Always picking the first or last pivot on sorted input is O(n²).</li><li>Many duplicates hurt basic partitioning (three-way partition fixes it).</li></ul>
+  <div class="real"><b>In real systems:</b> Many standard library sorts are introsort: quick sort that falls back to heap sort if recursion gets too deep.</div>
+  <div class="say"><b>Say out loud:</b> Average n log n and cache friendly. I'd use a random or middle pivot to avoid the sorted-input worst case.</div>
+</article><article id="c-binary-search" class="page">
+  <h2>Binary search templates</h2>
+  <p class="what">Halve the search space every step. Works on sorted data, and on any yes/no question whose answer flips once.</p>
+  <h4>How it works</h4><p>Use one template everywhere: lo = 0, hi = n (exclusive), loop while lo &lt; hi, and move toward the first index where a condition becomes true. lowerBound is the first a[i] &gt;= x. upperBound is the first a[i] &gt; x. Their difference counts occurrences. 'Search on the answer': if 'can it be done with capacity c' is no, no, no, yes, yes, binary search over c instead of over an array.</p>
+  <table><tr><td>search</td><td><code>O(log n)</code></td></tr><tr><td>search on the answer</td><td><code>O(log(range) × cost of one check)</code></td></tr></table>
+  <h4>Reach for it when</h4><ul><li>Sorted array: find, insert position, count of x</li><li>Minimum capacity, speed or time that works</li><li>Maximum value that still fits</li></ul>
+  <details><summary>Implementation (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="c">// first index with a[i] &gt;= x (where x would be inserted)</span>
+<span class="k">function</span> lowerBound(a: number[], x: number): number {
+  <span class="k">let</span> lo = <span class="n">0</span>, hi = a.length;
+  <span class="k">while</span> (lo &lt; hi) { <span class="k">const</span> m = (lo + hi) &gt;&gt; <span class="n">1</span>; <span class="k">if</span> (a[m] &lt; x) lo = m + <span class="n">1</span>; <span class="k">else</span> hi = m; }
+  <span class="k">return</span> lo;
+}
+<span class="c">// first index with a[i] &gt; x</span>
+<span class="k">function</span> upperBound(a: number[], x: number): number {
+  <span class="k">let</span> lo = <span class="n">0</span>, hi = a.length;
+  <span class="k">while</span> (lo &lt; hi) { <span class="k">const</span> m = (lo + hi) &gt;&gt; <span class="n">1</span>; <span class="k">if</span> (a[m] &lt;= x) lo = m + <span class="n">1</span>; <span class="k">else</span> hi = m; }
+  <span class="k">return</span> lo;
+}
+<span class="c">// "Search on the answer": smallest truck capacity that ships all packages, in order, within `days`</span>
+<span class="k">function</span> shipWithinDays(weights: number[], days: number): number {
+  <span class="k">const</span> fits = (cap: number) =&gt; {
+    <span class="k">let</span> used = <span class="n">1</span>, load = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="k">const</span> w <span class="k">of</span> weights) { <span class="k">if</span> (load + w &gt; cap) { used++; load = <span class="n">0</span>; } load += w; }
+    <span class="k">return</span> used &lt;= days;
+  };
+  <span class="k">let</span> lo = Math.max(...weights), hi = weights.reduce((s, w) =&gt; s + w, <span class="n">0</span>);
+  <span class="k">while</span> (lo &lt; hi) { <span class="k">const</span> m = (lo + hi) &gt;&gt; <span class="n">1</span>; <span class="k">if</span> (fits(m)) hi = m; <span class="k">else</span> lo = m + <span class="n">1</span>; }
+  <span class="k">return</span> lo;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Off by one: stick to one template (lo &lt; hi, hi = mid, lo = mid + 1).</li><li>Infinite loop: with lo &lt; hi, always set lo = mid + 1 on one side.</li><li>The search-on-answer bounds must be valid: lo = biggest single item, hi = everything at once.</li></ul>
+  <div class="real"><b>In real systems:</b> Every B+tree index lookup is binary search inside nodes. git bisect is binary search over commits. Capacity planning: smallest instance size that meets the SLA.</div>
+  <div class="say"><b>Say out loud:</b> The check is monotonic, if capacity c works then anything larger works, so I can binary search the answer.</div>
+</article></section><section class="ch" id="cc-recursion"><h2>Recursion and backtracking</h2><p>Try a choice, explore, undo.</p><article id="c-backtracking" class="page">
+  <h2>Backtracking</h2>
+  <p class="what">Build answers one choice at a time, explore each choice, and undo it before trying the next.</p>
+  <h4>How it works</h4><p>Template: choose, explore (recurse), un-choose. Subsets: each item is taken or skipped, giving 2^n results. Permutations: at each position try every unused item, giving n! results. Pruning (stopping early when a path can't work) is what makes it practical.</p>
+  <table><tr><td>subsets</td><td><code>O(n · 2^n)</code></td></tr><tr><td>permutations</td><td><code>O(n · n!)</code></td></tr></table>
+  <h4>Reach for it when</h4><ul><li>Generate all combinations, subsets, permutations</li><li>Puzzles: N-queens, sudoku, word search</li><li>Small n (usually under about 20)</li></ul>
+  <details><summary>Implementation (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> subsets(nums: number[]): number[][] {
+  <span class="k">const</span> out: number[][] = [], path: number[] = [];
+  <span class="k">const</span> go = (i: number) =&gt; {
+    <span class="k">if</span> (i === nums.length) { out.push([...path]); <span class="k">return</span>; }
+    go(i + <span class="n">1</span>);                                       <span class="c">// skip nums[i]</span>
+    path.push(nums[i]); go(i + <span class="n">1</span>); path.pop();       <span class="c">// take nums[i], then undo</span>
+  };
+  go(<span class="n">0</span>);
+  <span class="k">return</span> out;
+}
+<span class="k">function</span> permutations(nums: number[]): number[][] {
+  <span class="k">const</span> out: number[][] = [], path: number[] = [], used = <span class="k">new</span> Array(nums.length).fill(<span class="k">false</span>);
+  <span class="k">const</span> go = () =&gt; {
+    <span class="k">if</span> (path.length === nums.length) { out.push([...path]); <span class="k">return</span>; }
+    <span class="k">for</span> (<span class="k">let</span> i = <span class="n">0</span>; i &lt; nums.length; i++) {
+      <span class="k">if</span> (used[i]) <span class="k">continue</span>;
+      used[i] = <span class="k">true</span>; path.push(nums[i]);            <span class="c">// choose</span>
+      go();                                          <span class="c">// explore</span>
+      path.pop(); used[i] = <span class="k">false</span>;                   <span class="c">// un-choose</span>
+    }
+  };
+  go();
+  <span class="k">return</span> out;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Pushing path itself instead of a copy: every result ends up the same array.</li><li>Forgetting to undo (pop) after exploring.</li></ul>
+  <div class="real"><b>In real systems:</b> Generating test matrices or config combinations, constraint solvers, regex engines backtrack on failed matches.</div>
+  <div class="say"><b>Say out loud:</b> It's exponential by nature, so I'll prune as early as possible. Choose, explore, undo.</div>
+</article></section><section class="ch" id="cc-dp"><h2>Dynamic programming</h2><p>Recursion plus remembering answers you already computed.</p><article id="c-dp" class="page">
+  <h2>Dynamic programming</h2>
+  <p class="what">Solve a problem from answers to smaller versions of it, and never compute the same smaller answer twice.</p>
+  <h4>How it works</h4><p>Steps: 1) Define the state ('best[a] = fewest coins for amount a'). 2) Write the transition from smaller states. 3) Base cases. 4) Order: top-down with a memo (recursion plus a Map), or bottom-up filling a table. Coin change: best[a] = min over coins of best[a - c] + 1. LCS: if the characters match, take the diagonal + 1, otherwise the best of skipping one character. 0/1 knapsack: loop capacity backwards so each item is used once.</p>
+  <table><tr><td>cost</td><td><code>number of states × work per state</code></td></tr><tr><td>coin change</td><td><code>O(amount × coins)</code></td></tr><tr><td>LCS</td><td><code>O(n × m)</code></td></tr><tr><td>knapsack</td><td><code>O(items × capacity)</code></td></tr></table>
+  <h4>Reach for it when</h4><ul><li>'How many ways', 'minimum cost', 'maximum value', 'is it possible'</li><li>Choices whose sub-results repeat</li><li>Greedy fails on a counterexample</li></ul>
+  <details><summary>Implementation (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="c">// Fewest coins to make `amount`, or -1. Unlimited coins of each type.</span>
+<span class="k">function</span> coinChange(coins: number[], amount: number): number {
+  <span class="k">const</span> best = <span class="k">new</span> Array(amount + <span class="n">1</span>).fill(Infinity);
+  best[<span class="n">0</span>] = <span class="n">0</span>;
+  <span class="k">for</span> (<span class="k">let</span> a = <span class="n">1</span>; a &lt;= amount; a++)
+    <span class="k">for</span> (<span class="k">const</span> c <span class="k">of</span> coins) <span class="k">if</span> (c &lt;= a) best[a] = Math.min(best[a], best[a - c] + <span class="n">1</span>);
+  <span class="k">return</span> best[amount] === Infinity ? -<span class="n">1</span> : best[amount];
+}
+<span class="c">// Longest common subsequence length (the idea behind diff tools)</span>
+<span class="k">function</span> lcs(a: string, b: string): number {
+  <span class="k">const</span> dp = Array.from({ length: a.length + <span class="n">1</span> }, () =&gt; <span class="k">new</span> Array(b.length + <span class="n">1</span>).fill(<span class="n">0</span>));
+  <span class="k">for</span> (<span class="k">let</span> i = <span class="n">1</span>; i &lt;= a.length; i++)
+    <span class="k">for</span> (<span class="k">let</span> j = <span class="n">1</span>; j &lt;= b.length; j++)
+      dp[i][j] = a[i - <span class="n">1</span>] === b[j - <span class="n">1</span>] ? dp[i - <span class="n">1</span>][j - <span class="n">1</span>] + <span class="n">1</span> : Math.max(dp[i - <span class="n">1</span>][j], dp[i][j - <span class="n">1</span>]);
+  <span class="k">return</span> dp[a.length][b.length];
+}
+<span class="c">// 0/1 knapsack: each item once, max value within capacity. 1D table, loop capacity backwards.</span>
+<span class="k">function</span> knapsack(weights: number[], values: number[], cap: number): number {
+  <span class="k">const</span> dp = <span class="k">new</span> Array(cap + <span class="n">1</span>).fill(<span class="n">0</span>);
+  <span class="k">for</span> (<span class="k">let</span> i = <span class="n">0</span>; i &lt; weights.length; i++)
+    <span class="k">for</span> (<span class="k">let</span> c = cap; c &gt;= weights[i]; c--) dp[c] = Math.max(dp[c], dp[c - weights[i]] + values[i]);
+  <span class="k">return</span> dp[cap];
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Greedy coin change fails for coins [1, 3, 4] and amount 6 (greedy says 3 coins, DP finds 2).</li><li>Knapsack looped forwards lets an item be reused.</li><li>Start with the recursive version out loud, then add memo. It's easier to explain.</li></ul>
+  <div class="real"><b>In real systems:</b> diff tools are built on LCS-style edit distance (git uses Myers' algorithm). Spell checkers use edit distance. Pricing and resource allocation are knapsack-shaped.</div>
+  <div class="say"><b>Say out loud:</b> The subproblems overlap, so I'll memoize. The state is X, the transition is Y, and the cost is states times work per state.</div>
+</article></section><section class="ch" id="cc-bits"><h2>Bits</h2><p>Small tricks that come up as warm-ups and in flags.</p><article id="c-bits" class="page">
+  <h2>Bit manipulation</h2>
+  <p class="what">Treat a number as a row of 0s and 1s. Fast tricks for flags, counting and pairing.</p>
+  <h4>How it works</h4><p>n &amp; (n - 1) clears the lowest set bit, so a power of two (one bit) becomes 0, and repeating it counts bits. a ^ a = 0 and a ^ 0 = a, so XOR of everything cancels pairs. Flags: OR to set, AND to test, AND NOT to clear.</p>
+  <table><tr><td>each operation</td><td><code>O(1)</code></td></tr><tr><td>popcount</td><td><code>O(number of set bits)</code></td></tr></table>
+  <h4>Reach for it when</h4><ul><li>Single number among pairs</li><li>Power of two checks</li><li>Permission or feature flags in one integer</li><li>Subsets as bitmasks for small n</li></ul>
+  <details><summary>Implementation (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">const</span> isPowerOfTwo = (n: number) =&gt; n &gt; <span class="n">0</span> &amp;&amp; (n &amp; (n - <span class="n">1</span>)) === <span class="n">0</span>; <span class="c">// one bit set</span>
+<span class="k">function</span> popcount(n: number): number { <span class="k">let</span> c = <span class="n">0</span>; <span class="k">while</span> (n) { n &amp;= n - <span class="n">1</span>; c++; } <span class="k">return</span> c; } <span class="c">// drop lowest bit</span>
+<span class="k">const</span> singleNumber = (nums: number[]) =&gt; nums.reduce((x, n) =&gt; x ^ n, <span class="n">0</span>); <span class="c">// pairs cancel: a ^ a = 0</span>
+<span class="c">// Flags: const READ = 1, WRITE = 2, ADMIN = 4; perms |= WRITE; (perms &amp; ADMIN) !== 0</span></code></pre></details>
+  <h4>Traps</h4><ul><li>JS bitwise operators work on 32-bit signed ints. Big numbers break; use BigInt.</li><li>&gt;&gt; keeps the sign, &gt;&gt;&gt; fills with zeros.</li></ul>
+  <div class="real"><b>In real systems:</b> Unix file permissions (chmod 755), feature flag masks, Bloom filters, Redis bitmaps (SETBIT) for daily active users.</div>
+  <div class="say"><b>Say out loud:</b> XOR cancels pairs, so whatever's left appears once. O(n) time, O(1) space.</div>
+</article></section><section class="ch" id="cc-backend"><h2>Built for backends</h2><p>The two build-it-from-scratch questions backend interviews ask most.</p><article id="c-lru-cache" class="page">
+  <h2>LRU cache</h2>
+  <p class="what">A fixed-size cache that throws out the least recently used item when full. get and put are both O(1).</p>
+  <h4>How it works</h4><p>Two structures together: a hash map from key to node (O(1) lookup), and a doubly linked list ordered by use (O(1) move and remove). Dummy head and tail nodes remove edge cases. get: find the node, move it to the front. put: update or insert at the front. Over capacity: remove the node before the tail and delete its key from the map.</p>
+  <table><tr><td>get / put</td><td><code>O(1)</code></td></tr><tr><td>space</td><td><code>O(capacity)</code></td></tr></table>
+  <h4>Reach for it when</h4><ul><li>'Design a cache', LRU or LFU questions</li><li>Any time you need O(1) lookup plus O(1) ordering</li></ul>
+  <details><summary>Implementation (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">type</span> LNode = { key: number; val: number; prev: LNode | <span class="k">null</span>; next: LNode | <span class="k">null</span> };
+<span class="k">class</span> LRUCache {
+  <span class="k">private</span> map = <span class="k">new</span> Map&lt;number, LNode&gt;();
+  <span class="k">private</span> head: LNode = { key: <span class="n">0</span>, val: <span class="n">0</span>, prev: <span class="k">null</span>, next: <span class="k">null</span> }; <span class="c">// most recent side</span>
+  <span class="k">private</span> tail: LNode = { key: <span class="n">0</span>, val: <span class="n">0</span>, prev: <span class="k">null</span>, next: <span class="k">null</span> }; <span class="c">// least recent side</span>
+  constructor(<span class="k">private</span> capacity: number) { this.head.next = this.tail; this.tail.prev = this.head; }
+
+  <span class="k">private</span> unlink(n: LNode) { n.prev!.next = n.next; n.next!.prev = n.prev; }
+  <span class="k">private</span> addFront(n: LNode) { n.next = this.head.next; n.prev = this.head; this.head.next!.prev = n; this.head.next = n; }
+
+  <span class="k">get</span>(key: number): number {
+    <span class="k">const</span> n = this.map.<span class="k">get</span>(key);
+    <span class="k">if</span> (!n) <span class="k">return</span> -<span class="n">1</span>;
+    this.unlink(n); this.addFront(n);                <span class="c">// touched = most recent</span>
+    <span class="k">return</span> n.val;
+  }
+  put(key: number, val: number): <span class="k">void</span> {
+    <span class="k">const</span> hit = this.map.<span class="k">get</span>(key);
+    <span class="k">if</span> (hit) { hit.val = val; this.unlink(hit); this.addFront(hit); <span class="k">return</span>; }
+    <span class="k">const</span> n: LNode = { key, val, prev: <span class="k">null</span>, next: <span class="k">null</span> };
+    this.map.set(key, n); this.addFront(n);
+    <span class="k">if</span> (this.map.size &gt; this.capacity) {             <span class="c">// evict least recently used</span>
+      <span class="k">const</span> lru = this.tail.prev!;
+      this.unlink(lru); this.map.delete(lru.key);
+    }
+  }
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>In JS, a Map keeps insertion order, so delete then set moves a key to the end. That's a valid shortcut, but say so and offer the linked-list version, which is what they're testing.</li><li>Forgetting to delete the evicted key from the map.</li><li>Node needs its key, so eviction knows what to delete from the map.</li></ul>
+  <div class="real"><b>In real systems:</b> Redis eviction policy allkeys-lru (Redis approximates it by sampling keys). CDN and browser caches. Database buffer pools use LRU variants.</div>
+  <div class="say"><b>Say out loud:</b> A map gives O(1) lookup and a doubly linked list gives O(1) reordering. Together, both operations are O(1).</div>
+</article><article id="c-token-bucket" class="page">
+  <h2>Token bucket rate limiter</h2>
+  <p class="what">Allows bursts up to a limit, then a steady rate. The standard way to rate limit an API.</p>
+  <h4>How it works</h4><p>The bucket holds up to capacity tokens and refills at a fixed rate. Each request takes a token; an empty bucket means reject (HTTP 429). Refill lazily: on each request, add elapsed time × rate, capped at capacity. No timers needed. Passing the clock in makes it testable.</p>
+  <table><tr><td>tryTake</td><td><code>O(1)</code></td></tr><tr><td>memory</td><td><code>O(1) per client key</code></td></tr></table>
+  <h4>Reach for it when</h4><ul><li>'Design a rate limiter'</li><li>Protect an API or a third-party quota</li><li>Smooth bursts of jobs</li></ul>
+  <details><summary>Implementation (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="c">// Allows bursts up to `capacity`, refills at `ratePerSec`. `now` is injectable so it's testable.</span>
+<span class="k">class</span> TokenBucket {
+  <span class="k">private</span> tokens: number; <span class="k">private</span> last: number;
+  constructor(<span class="k">private</span> capacity: number, <span class="k">private</span> ratePerSec: number, <span class="k">private</span> now: () =&gt; number = Date.now) {
+    this.tokens = capacity; this.last = now();
+  }
+  tryTake(cost = <span class="n">1</span>): boolean {
+    <span class="k">const</span> t = this.now();
+    this.tokens = Math.min(this.capacity, this.tokens + ((t - this.last) / <span class="n">1000</span>) * this.ratePerSec);
+    this.last = t;
+    <span class="k">if</span> (this.tokens &lt; cost) <span class="k">return</span> <span class="k">false</span>;            <span class="c">// caller returns HTTP 429</span>
+    this.tokens -= cost;
+    <span class="k">return</span> <span class="k">true</span>;
+  }
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Across many servers, an in-memory bucket isn't shared. Use Redis with a Lua script (atomic read-modify-write) or the gateway.</li><li>Fixed window counters allow a 2x burst at window edges. Sliding window or token bucket fix that.</li><li>Use a monotonic clock in production; wall clocks can jump.</li></ul>
+  <div class="real"><b>In real systems:</b> Kong's rate limiting plugin, AWS API Gateway throttling (token bucket), nginx limit_req (leaky bucket, a close cousin).</div>
+  <div class="say"><b>Say out loud:</b> Lazy refill means no background timer, O(1) per request. For many servers I'd keep the bucket in Redis and update it atomically with a Lua script.</div>
+</article></section>
+
+<div class="partHead" id="part2"><h1>Part 2 · Problems</h1><p class="lead">Grouped by pattern. Try first, then hint, approach, solution.</p></div>
+<section class="ch" id="pc-hashing"><h2>Arrays and hashing</h2><p>Need to remember what you've seen, or count things? Use a Map or Set. Turns O(n²) into O(n).</p><article id="p-two-sum" class="page">
+  <div class="crumb">#1 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/two-sum/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Two Sum</h2>
+  <p>Given an array of numbers and a target, return the indexes of the two numbers that add up to the target. Exactly one answer exists. You can't use the same element twice.</p>
+  <pre class="ex">nums = [2,7,11,15], target = 9  -&gt;  [0,1]
+nums = [3,3], target = 6  -&gt;  [0,1]</pre>
+  <h4>Ask before coding</h4><ul><li>Can there be negative numbers?</li><li>Always exactly one answer?</li><li>Return indexes or values?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>For each number, the partner you need is target - num. Have you seen it already?</p></details>
+  <details><summary>Approach</summary><p>Walk once. Keep a Map of value to index for everything seen so far. For each number, check if target - num is in the map. Check before inserting, so a number never pairs with itself.</p><p class="cx"><b>Time</b> O(n) &nbsp; <b>Space</b> O(n)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> twoSum(nums: number[], target: number): number[] {
+  <span class="k">const</span> seen = <span class="k">new</span> Map&lt;number, number&gt;(); <span class="c">// value -&gt; index</span>
+  <span class="k">for</span> (<span class="k">let</span> i = <span class="n">0</span>; i &lt; nums.length; i++) {
+    <span class="k">const</span> need = target - nums[i];
+    <span class="k">if</span> (seen.has(need)) <span class="k">return</span> [seen.<span class="k">get</span>(need)!, i];
+    seen.set(nums[i], i);
+  }
+  <span class="k">return</span> [];
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Inserting before checking pairs a number with itself (fails [3,3] target 6 the other way round).</li><li>The brute force double loop is O(n²). Mention it, then improve.</li></ul>
+  <div class="say"><b>Say out loud:</b> Brute force is two loops, O(n squared). I can trade memory for time: store what I've seen in a map, then each lookup is O(1).</div>
+</article><article id="p-contains-duplicate" class="page">
+  <div class="crumb">#217 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/contains-duplicate/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Contains Duplicate</h2>
+  <p>Return true if any value appears at least twice in the array.</p>
+  <pre class="ex">[1,2,3,1] -&gt; true
+[1,2,3,4] -&gt; false</pre>
+  <h4>Ask before coding</h4><ul><li>Empty array returns false?</li><li>Can I use extra memory?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>What data structure answers 'have I seen this?' in O(1)?</p></details>
+  <details><summary>Approach</summary><p>Put values in a Set while walking. If one is already there, return true.</p><p class="cx"><b>Time</b> O(n) &nbsp; <b>Space</b> O(n)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> containsDuplicate(nums: number[]): boolean {
+  <span class="k">const</span> seen = <span class="k">new</span> Set&lt;number&gt;();
+  <span class="k">for</span> (<span class="k">const</span> n <span class="k">of</span> nums) {
+    <span class="k">if</span> (seen.has(n)) <span class="k">return</span> <span class="k">true</span>;
+    seen.add(n);
+  }
+  <span class="k">return</span> <span class="k">false</span>;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Sorting works too (O(n log n), O(1) extra). Mention the trade-off.</li><li>One-liner: new Set(nums).size !== nums.length, but it can't stop early.</li></ul>
+  <div class="say"><b>Say out loud:</b> A set gives O(1) membership checks, so one pass. If memory were tight I'd sort and compare neighbours instead.</div>
+</article><article id="p-valid-anagram" class="page">
+  <div class="crumb">#242 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/valid-anagram/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Valid Anagram</h2>
+  <p>Return true if t is a rearrangement of the letters of s.</p>
+  <pre class="ex">s = anagram, t = nagaram -&gt; true
+s = rat, t = car -&gt; false</pre>
+  <h4>Ask before coding</h4><ul><li>Only lowercase a to z, or any Unicode?</li><li>Is case significant?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>Same letters, same counts.</p></details>
+  <details><summary>Approach</summary><p>If lengths differ, false. Count letters of s in a Map, then subtract for t. If any count goes below zero, false.</p><p class="cx"><b>Time</b> O(n) &nbsp; <b>Space</b> O(k), k = distinct characters</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> isAnagram(s: string, t: string): boolean {
+  <span class="k">if</span> (s.length !== t.length) <span class="k">return</span> <span class="k">false</span>;
+  <span class="k">const</span> count = <span class="k">new</span> Map&lt;string, number&gt;();
+  <span class="k">for</span> (<span class="k">const</span> c <span class="k">of</span> s) count.set(c, (count.<span class="k">get</span>(c) ?? <span class="n">0</span>) + <span class="n">1</span>);
+  <span class="k">for</span> (<span class="k">const</span> c <span class="k">of</span> t) {
+    <span class="k">const</span> left = (count.<span class="k">get</span>(c) ?? <span class="n">0</span>) - <span class="n">1</span>;
+    <span class="k">if</span> (left &lt; <span class="n">0</span>) <span class="k">return</span> <span class="k">false</span>;
+    count.set(c, left);
+  }
+  <span class="k">return</span> <span class="k">true</span>;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Forgetting the length check.</li><li>For only a to z, a fixed array of 26 is faster than a Map.</li></ul>
+  <div class="say"><b>Say out loud:</b> Anagrams have identical character counts. I'll count one string up and the other down.</div>
+</article><article id="p-group-anagrams" class="page">
+  <div class="crumb">#49 · <span class="d-Medium">Medium</span> · <a href="https://leetcode.com/problems/group-anagrams/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Group Anagrams</h2>
+  <p>Group the words that are anagrams of each other. Any order.</p>
+  <pre class="ex">["eat","tea","tan","ate","nat","bat"] -&gt; [["bat"],["nat","tan"],["ate","eat","tea"]]</pre>
+  <h4>Ask before coding</h4><ul><li>Lowercase only?</li><li>Does output order matter?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>Give every word a key that's the same for all its anagrams.</p></details>
+  <details><summary>Approach</summary><p>The key is the sorted letters (eat, tea, ate all become aet). Map from key to list of words.</p><p class="cx"><b>Time</b> O(n · k log k), k = word length &nbsp; <b>Space</b> O(n · k)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> groupAnagrams(strs: string[]): string[][] {
+  <span class="k">const</span> groups = <span class="k">new</span> Map&lt;string, string[]&gt;();
+  <span class="k">for</span> (<span class="k">const</span> s <span class="k">of</span> strs) {
+    <span class="k">const</span> key = [...s].sort().join(<span class="s">""</span>); <span class="c">// "eat" -&gt; "aet"</span>
+    <span class="k">if</span> (!groups.has(key)) groups.set(key, []);
+    groups.<span class="k">get</span>(key)!.push(s);
+  }
+  <span class="k">return</span> [...groups.values()];
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>For a to z only, a count-based key (26 numbers joined) removes the sort: O(n · k).</li></ul>
+  <div class="say"><b>Say out loud:</b> This is grouping by a canonical key. Sorted letters is the simplest key.</div>
+</article><article id="p-majority-element" class="page">
+  <div class="crumb">#169 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/majority-element/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Majority Element</h2>
+  <p>Return the element that appears more than n/2 times. It always exists.</p>
+  <pre class="ex">[3,2,3] -&gt; 3
+[2,2,1,1,1,2,2] -&gt; 2</pre>
+  <h4>Ask before coding</h4><ul><li>Guaranteed to exist?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>Counting with a Map works. Can you do O(1) memory?</p></details>
+  <details><summary>Approach</summary><p>Boyer-Moore voting: keep a candidate and a vote count. Same value adds a vote, a different one removes a vote. At zero, take the current value as the new candidate. The majority can't be cancelled out.</p><p class="cx"><b>Time</b> O(n) &nbsp; <b>Space</b> O(1)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> majorityElement(nums: number[]): number {
+  <span class="c">// Boyer-Moore vote: the majority survives every cancel-out</span>
+  <span class="k">let</span> candidate = nums[<span class="n">0</span>], votes = <span class="n">0</span>;
+  <span class="k">for</span> (<span class="k">const</span> n <span class="k">of</span> nums) {
+    <span class="k">if</span> (votes === <span class="n">0</span>) candidate = n;
+    votes += n === candidate ? <span class="n">1</span> : -<span class="n">1</span>;
+  }
+  <span class="k">return</span> candidate;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Only valid because a majority is guaranteed. Otherwise do a second pass to verify.</li></ul>
+  <div class="say"><b>Say out loud:</b> A map count is the obvious answer. Since a majority is guaranteed, the voting trick gets memory to O(1).</div>
+</article><article id="p-top-k-frequent" class="page">
+  <div class="crumb">#347 · <span class="d-Medium">Medium</span> · <a href="https://leetcode.com/problems/top-k-frequent-elements/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Top K Frequent Elements</h2>
+  <p>Return the k most frequent numbers.</p>
+  <pre class="ex">[1,1,1,2,2,3], k = 2 -&gt; [1,2]</pre>
+  <h4>Ask before coding</h4><ul><li>Any order in the output?</li><li>Ties?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>Count first. A count can't be bigger than n.</p></details>
+  <details><summary>Approach</summary><p>Count with a Map. Then bucket by count: bucket[c] holds numbers seen c times. Walk buckets from high to low until you have k.</p><p class="cx"><b>Time</b> O(n) &nbsp; <b>Space</b> O(n)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> topKFrequent(nums: number[], k: number): number[] {
+  <span class="k">const</span> count = <span class="k">new</span> Map&lt;number, number&gt;();
+  <span class="k">for</span> (<span class="k">const</span> n <span class="k">of</span> nums) count.set(n, (count.<span class="k">get</span>(n) ?? <span class="n">0</span>) + <span class="n">1</span>);
+  <span class="c">// bucket[i] = numbers that appear exactly i times</span>
+  <span class="k">const</span> bucket: number[][] = Array.from({ length: nums.length + <span class="n">1</span> }, () =&gt; []);
+  <span class="k">for</span> (<span class="k">const</span> [n, c] <span class="k">of</span> count) bucket[c].push(n);
+  <span class="k">const</span> out: number[] = [];
+  <span class="k">for</span> (<span class="k">let</span> c = bucket.length - <span class="n">1</span>; c &gt; <span class="n">0</span> &amp;&amp; out.length &lt; k; c--) out.push(...bucket[c]);
+  <span class="k">return</span> out.slice(<span class="n">0</span>, k);
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Sorting the counts is O(n log n). Fine to say first, then improve.</li><li>A heap of size k gives O(n log k).</li></ul>
+  <div class="say"><b>Say out loud:</b> Count, then I need the top k. Sorting is n log n. Since counts are bounded by n, bucket sort makes it linear.</div>
+</article></section><section class="ch" id="pc-two-pointers"><h2>Two pointers</h2><p>Sorted array, palindrome, or in-place rewrite? One pointer reads, one writes, or both walk in from the ends.</p><article id="p-valid-palindrome" class="page">
+  <div class="crumb">#125 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/valid-palindrome/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Valid Palindrome</h2>
+  <p>After lowercasing and removing non-alphanumeric characters, does the string read the same both ways?</p>
+  <pre class="ex">"A man, a plan, a canal: Panama" -&gt; true
+"race a car" -&gt; false</pre>
+  <h4>Ask before coding</h4><ul><li>Digits count as alphanumeric?</li><li>Empty string is true?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>One pointer at each end, skip junk, compare, move inward.</p></details>
+  <details><summary>Approach</summary><p>Two pointers walk inward. Skip characters that aren't letters or digits. Compare lowercase. Any mismatch means false.</p><p class="cx"><b>Time</b> O(n) &nbsp; <b>Space</b> O(1)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> isPalindrome(s: string): boolean {
+  <span class="k">const</span> ok = (c: string) =&gt; /[a-z0-<span class="n">9</span>]/i.test(c);
+  <span class="k">let</span> l = <span class="n">0</span>, r = s.length - <span class="n">1</span>;
+  <span class="k">while</span> (l &lt; r) {
+    <span class="k">if</span> (!ok(s[l])) { l++; <span class="k">continue</span>; }
+    <span class="k">if</span> (!ok(s[r])) { r--; <span class="k">continue</span>; }
+    <span class="k">if</span> (s[l].toLowerCase() !== s[r].toLowerCase()) <span class="k">return</span> <span class="k">false</span>;
+    l++; r--;
+  }
+  <span class="k">return</span> <span class="k">true</span>;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Building a cleaned copy is fine but uses O(n) memory.</li><li>Use l &lt; r, not l &lt;= r.</li></ul>
+  <div class="say"><b>Say out loud:</b> I can clean and reverse, but two pointers do it in place with no extra string.</div>
+</article><article id="p-merge-sorted-array" class="page">
+  <div class="crumb">#88 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/merge-sorted-array/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Merge Sorted Array</h2>
+  <p>nums1 has m real values followed by n empty slots. Merge sorted nums2 (n values) into nums1, in place.</p>
+  <pre class="ex">nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6] -&gt; [1,2,2,3,5,6]</pre>
+  <h4>Ask before coding</h4><ul><li>Both sorted ascending?</li><li>In place, no return?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>The empty space is at the end. Which end should you fill from?</p></details>
+  <details><summary>Approach</summary><p>Three pointers from the back: last real value of nums1, last of nums2, last slot. Put the larger one in the slot. Stop when nums2 is used up.</p><p class="cx"><b>Time</b> O(m + n) &nbsp; <b>Space</b> O(1)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> merge(nums1: number[], m: number, nums2: number[], n: number): <span class="k">void</span> {
+  <span class="c">// fill from the back so we never overwrite unread values</span>
+  <span class="k">let</span> i = m - <span class="n">1</span>, j = n - <span class="n">1</span>, w = m + n - <span class="n">1</span>;
+  <span class="k">while</span> (j &gt;= <span class="n">0</span>) {
+    <span class="k">if</span> (i &gt;= <span class="n">0</span> &amp;&amp; nums1[i] &gt; nums2[j]) nums1[w--] = nums1[i--];
+    <span class="k">else</span> nums1[w--] = nums2[j--];
+  }
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Filling from the front overwrites values you still need.</li><li>Loop on j &gt;= 0. Leftover nums1 values are already in place.</li></ul>
+  <div class="say"><b>Say out loud:</b> Writing from the front would overwrite data, but the back has free space, so I merge from largest to smallest.</div>
+</article><article id="p-move-zeroes" class="page">
+  <div class="crumb">#283 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/move-zeroes/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Move Zeroes</h2>
+  <p>Move all zeros to the end in place, keeping the order of the other numbers.</p>
+  <pre class="ex">[0,1,0,3,12] -&gt; [1,3,12,0,0]</pre>
+  <h4>Ask before coding</h4><ul><li>In place?</li><li>Keep relative order?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>A reader pointer and a writer pointer.</p></details>
+  <details><summary>Approach</summary><p>w is where the next non-zero goes. Read every element. When it's non-zero, swap it into w and move w forward.</p><p class="cx"><b>Time</b> O(n) &nbsp; <b>Space</b> O(1)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> moveZeroes(nums: number[]): <span class="k">void</span> {
+  <span class="k">let</span> w = <span class="n">0</span>; <span class="c">// next slot for a non-zero</span>
+  <span class="k">for</span> (<span class="k">let</span> r = <span class="n">0</span>; r &lt; nums.length; r++) {
+    <span class="k">if</span> (nums[r] !== <span class="n">0</span>) {
+      [nums[w], nums[r]] = [nums[r], nums[w]];
+      w++;
+    }
+  }
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Removing with splice inside a loop is O(n²) and skips elements.</li></ul>
+  <div class="say"><b>Say out loud:</b> Classic read pointer, write pointer. Swapping keeps the zeros moving to the back.</div>
+</article><article id="p-remove-duplicates" class="page">
+  <div class="crumb">#26 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/remove-duplicates-from-sorted-array/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Remove Duplicates from Sorted Array</h2>
+  <p>Sorted array. Remove duplicates in place so each value appears once. Return the new length k. The first k slots hold the answer.</p>
+  <pre class="ex">[0,0,1,1,1,2,2,3,3,4] -&gt; 5, first five = [0,1,2,3,4]</pre>
+  <h4>Ask before coding</h4><ul><li>Sorted ascending?</li><li>What's after k doesn't matter?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>Sorted means duplicates are neighbours.</p></details>
+  <details><summary>Approach</summary><p>Writer w starts at 1. For each value, if it differs from the last written value nums[w-1], write it at w.</p><p class="cx"><b>Time</b> O(n) &nbsp; <b>Space</b> O(1)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> removeDuplicates(nums: number[]): number {
+  <span class="k">if</span> (nums.length === <span class="n">0</span>) <span class="k">return</span> <span class="n">0</span>;
+  <span class="k">let</span> w = <span class="n">1</span>;
+  <span class="k">for</span> (<span class="k">let</span> r = <span class="n">1</span>; r &lt; nums.length; r++) {
+    <span class="k">if</span> (nums[r] !== nums[w - <span class="n">1</span>]) nums[w++] = nums[r];
+  }
+  <span class="k">return</span> w;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Compare with the last written value, not with nums[r-1]. Both work here, but the first generalises.</li></ul>
+  <div class="say"><b>Say out loud:</b> Because it's sorted, I only need to compare with the last value I kept.</div>
+</article></section><section class="ch" id="pc-window"><h2>Sliding window</h2><p>Best substring or subarray? Grow the right edge, shrink the left edge when the window breaks a rule.</p><article id="p-best-time-stock" class="page">
+  <div class="crumb">#121 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Best Time to Buy and Sell Stock</h2>
+  <p>prices[i] is the price on day i. Buy once, sell once later. Return the max profit, or 0.</p>
+  <pre class="ex">[7,1,5,3,6,4] -&gt; 5 (buy 1, sell 6)
+[7,6,4,3,1] -&gt; 0</pre>
+  <h4>Ask before coding</h4><ul><li>Must buy before selling?</li><li>Can profit be zero?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>For each day as the sell day, what's the best buy day before it?</p></details>
+  <details><summary>Approach</summary><p>Track the lowest price seen so far. Each day, profit if sold today = price - lowest. Keep the best.</p><p class="cx"><b>Time</b> O(n) &nbsp; <b>Space</b> O(1)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> maxProfit(prices: number[]): number {
+  <span class="k">let</span> minSoFar = Infinity, best = <span class="n">0</span>;
+  <span class="k">for</span> (<span class="k">const</span> p <span class="k">of</span> prices) {
+    minSoFar = Math.min(minSoFar, p);
+    best = Math.max(best, p - minSoFar);
+  }
+  <span class="k">return</span> best;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Taking global max minus global min ignores order (the min might come after the max).</li></ul>
+  <div class="say"><b>Say out loud:</b> For each sell day I just need the cheapest day before it, so I carry a running minimum.</div>
+</article><article id="p-longest-substring" class="page">
+  <div class="crumb">#3 · <span class="d-Medium">Medium</span> · <a href="https://leetcode.com/problems/longest-substring-without-repeating-characters/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Longest Substring Without Repeating Characters</h2>
+  <p>Return the length of the longest substring with no repeated character.</p>
+  <pre class="ex">abcabcbb -&gt; 3 (abc)
+bbbbb -&gt; 1
+pwwkew -&gt; 3 (wke)</pre>
+  <h4>Ask before coding</h4><ul><li>Substring means contiguous?</li><li>Character set?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>Keep a window with no repeats. When a repeat comes in, move the left edge past its last position.</p></details>
+  <details><summary>Approach</summary><p>Map each character to its last index. Window is start..i. If the current character was last seen inside the window, move start to just after it. Track the max window length.</p><p class="cx"><b>Time</b> O(n) &nbsp; <b>Space</b> O(k)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> lengthOfLongestSubstring(s: string): number {
+  <span class="k">const</span> lastSeen = <span class="k">new</span> Map&lt;string, number&gt;();
+  <span class="k">let</span> start = <span class="n">0</span>, best = <span class="n">0</span>;
+  <span class="k">for</span> (<span class="k">let</span> i = <span class="n">0</span>; i &lt; s.length; i++) {
+    <span class="k">const</span> prev = lastSeen.<span class="k">get</span>(s[i]);
+    <span class="k">if</span> (prev !== <span class="k">undefined</span> &amp;&amp; prev &gt;= start) start = prev + <span class="n">1</span>; <span class="c">// jump past the repeat</span>
+    lastSeen.set(s[i], i);
+    best = Math.max(best, i - start + <span class="n">1</span>);
+  }
+  <span class="k">return</span> best;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Only jump start forward if the old index is &gt;= start ('abba' breaks otherwise).</li><li>Substring is not subsequence.</li></ul>
+  <div class="say"><b>Say out loud:</b> Sliding window. The right edge always grows, the left edge only moves forward, so each character is processed a constant number of times.</div>
+</article></section><section class="ch" id="pc-stack"><h2>Stack</h2><p>Matching pairs, undo, the most recent thing first.</p><article id="p-valid-parentheses" class="page">
+  <div class="crumb">#20 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/valid-parentheses/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Valid Parentheses</h2>
+  <p>Is the bracket string balanced and correctly nested? Only ()[]{}.</p>
+  <pre class="ex">()[]{} -&gt; true
+([)] -&gt; false
+{[]} -&gt; true</pre>
+  <h4>Ask before coding</h4><ul><li>Only these 6 characters?</li><li>Empty string valid?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>The most recent open bracket must close first.</p></details>
+  <details><summary>Approach</summary><p>Push open brackets. On a closing bracket, pop and check it matches. At the end the stack must be empty.</p><p class="cx"><b>Time</b> O(n) &nbsp; <b>Space</b> O(n)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> isValid(s: string): boolean {
+  <span class="k">const</span> pairs: Record&lt;string, string&gt; = { <span class="s">")"</span>: <span class="s">"("</span>, <span class="s">"]"</span>: <span class="s">"["</span>, <span class="s">"}"</span>: <span class="s">"{"</span> };
+  <span class="k">const</span> stack: string[] = [];
+  <span class="k">for</span> (<span class="k">const</span> c <span class="k">of</span> s) {
+    <span class="k">if</span> (c <span class="k">in</span> pairs) {
+      <span class="k">if</span> (stack.pop() !== pairs[c]) <span class="k">return</span> <span class="k">false</span>;
+    } <span class="k">else</span> stack.push(c);
+  }
+  <span class="k">return</span> stack.length === <span class="n">0</span>;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Forgetting the final empty check ('(' alone).</li><li>A closing bracket on an empty stack: pop gives undefined, so it fails correctly.</li></ul>
+  <div class="say"><b>Say out loud:</b> Last opened, first closed: that's a stack.</div>
+</article><article id="p-min-stack" class="page">
+  <div class="crumb">#155 · <span class="d-Medium">Medium</span> · <a href="https://leetcode.com/problems/min-stack/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Min Stack</h2>
+  <p>Design a stack with push, pop, top and getMin, all O(1).</p>
+  <pre class="ex">push -2, push 0, push -3, getMin -&gt; -3, pop, top -&gt; 0, getMin -&gt; -2</pre>
+  <h4>Ask before coding</h4><ul><li>pop and top only called on a non-empty stack?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>Store the min at each height, not just one global min.</p></details>
+  <details><summary>Approach</summary><p>A second stack where mins[i] is the minimum of everything up to i. Push and pop both stacks together.</p><p class="cx"><b>Time</b> O(1) each &nbsp; <b>Space</b> O(n)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">class</span> MinStack {
+  <span class="k">private</span> items: number[] = [];
+  <span class="k">private</span> mins: number[] = []; <span class="c">// mins[i] = min of items[0..i]</span>
+  push(x: number) {
+    this.items.push(x);
+    this.mins.push(this.mins.length ? Math.min(x, this.mins[this.mins.length - <span class="n">1</span>]) : x);
+  }
+  pop() { this.items.pop(); this.mins.pop(); }
+  top() { <span class="k">return</span> this.items[this.items.length - <span class="n">1</span>]; }
+  getMin() { <span class="k">return</span> this.mins[this.mins.length - <span class="n">1</span>]; }
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>A single min variable breaks after popping the min.</li></ul>
+  <div class="say"><b>Say out loud:</b> The trick is remembering the min at every level, so popping restores the old min for free.</div>
+</article></section><section class="ch" id="pc-binary-search"><h2>Binary search</h2><p>Sorted input, or a yes/no answer that flips once? Halve the search space each step. O(log n).</p><article id="p-binary-search" class="page">
+  <div class="crumb">#704 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/binary-search/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Binary Search</h2>
+  <p>Sorted array, return the index of target or -1.</p>
+  <pre class="ex">[-1,0,3,5,9,12], 9 -&gt; 4
+[-1,0,3,5,9,12], 2 -&gt; -1</pre>
+  <h4>Ask before coding</h4><ul><li>Sorted ascending? Duplicates?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>Compare with the middle, throw away half.</p></details>
+  <details><summary>Approach</summary><p>lo and hi bound the range. Check mid. Go right if mid is too small, left if too big. Stop when lo passes hi.</p><p class="cx"><b>Time</b> O(log n) &nbsp; <b>Space</b> O(1)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> search(nums: number[], target: number): number {
+  <span class="k">let</span> lo = <span class="n">0</span>, hi = nums.length - <span class="n">1</span>;
+  <span class="k">while</span> (lo &lt;= hi) {
+    <span class="k">const</span> mid = lo + Math.floor((hi - lo) / <span class="n">2</span>);
+    <span class="k">if</span> (nums[mid] === target) <span class="k">return</span> mid;
+    <span class="k">if</span> (nums[mid] &lt; target) lo = mid + <span class="n">1</span>;
+    <span class="k">else</span> hi = mid - <span class="n">1</span>;
+  }
+  <span class="k">return</span> -<span class="n">1</span>;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Use lo &lt;= hi with hi = n - 1. Mixing styles gives infinite loops.</li><li>mid = lo + (hi - lo) / 2 avoids overflow in other languages.</li></ul>
+  <div class="say"><b>Say out loud:</b> Sorted input means binary search, log n. I'll use the inclusive version, lo &lt;= hi.</div>
+</article><article id="p-search-insert" class="page">
+  <div class="crumb">#35 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/search-insert-position/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Search Insert Position</h2>
+  <p>Sorted array of distinct numbers. Return target's index, or where it would be inserted.</p>
+  <pre class="ex">[1,3,5,6], 5 -&gt; 2
+[1,3,5,6], 2 -&gt; 1
+[1,3,5,6], 7 -&gt; 4</pre>
+  <h4>Ask before coding</h4><ul><li>Distinct values?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>You want the first index whose value is &gt;= target.</p></details>
+  <details><summary>Approach</summary><p>Lower bound: hi = n (exclusive). If nums[mid] &lt; target, answer is right of mid. Otherwise mid could be the answer, so hi = mid. Return lo.</p><p class="cx"><b>Time</b> O(log n) &nbsp; <b>Space</b> O(1)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> searchInsert(nums: number[], target: number): number {
+  <span class="c">// first index where nums[i] &gt;= target ("lower bound")</span>
+  <span class="k">let</span> lo = <span class="n">0</span>, hi = nums.length;
+  <span class="k">while</span> (lo &lt; hi) {
+    <span class="k">const</span> mid = (lo + hi) &gt;&gt; <span class="n">1</span>;
+    <span class="k">if</span> (nums[mid] &lt; target) lo = mid + <span class="n">1</span>;
+    <span class="k">else</span> hi = mid;
+  }
+  <span class="k">return</span> lo;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>This is the most reusable binary search shape. Learn this one.</li></ul>
+  <div class="say"><b>Say out loud:</b> This is lower bound: the first position where the value is at least the target.</div>
+</article></section><section class="ch" id="pc-linked-list"><h2>Linked list</h2><p>Draw boxes and arrows. Save next before you cut a link. A dummy head removes edge cases.</p><article id="p-reverse-list" class="page">
+  <div class="crumb">#206 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/reverse-linked-list/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Reverse Linked List</h2>
+  <p>Reverse a singly linked list and return the new head.</p>
+  <pre class="ex">1-&gt;2-&gt;3-&gt;4-&gt;5 -&gt; 5-&gt;4-&gt;3-&gt;2-&gt;1</pre>
+  <h4>Ask before coding</h4><ul><li>Iterative or recursive preferred?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>Three variables: prev, current, next.</p></details>
+  <details><summary>Approach</summary><p>Walk the list. Save next, point current back to prev, move prev and current forward. prev is the new head.</p><p class="cx"><b>Time</b> O(n) &nbsp; <b>Space</b> O(1)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> reverseList(head: ListNode | <span class="k">null</span>): ListNode | <span class="k">null</span> {
+  <span class="k">let</span> prev: ListNode | <span class="k">null</span> = <span class="k">null</span>;
+  <span class="k">while</span> (head) {
+    <span class="k">const</span> next = head.next; <span class="c">// save before we cut the link</span>
+    head.next = prev;
+    prev = head;
+    head = next;
+  }
+  <span class="k">return</span> prev;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Losing the rest of the list by not saving next first.</li><li>Returning head instead of prev.</li></ul>
+  <div class="say"><b>Say out loud:</b> I'll flip each arrow as I go. I save next before cutting the link.</div>
+</article><article id="p-merge-two-lists" class="page">
+  <div class="crumb">#21 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/merge-two-sorted-lists/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Merge Two Sorted Lists</h2>
+  <p>Merge two sorted linked lists into one sorted list.</p>
+  <pre class="ex">1-&gt;2-&gt;4 + 1-&gt;3-&gt;4 -&gt; 1-&gt;1-&gt;2-&gt;3-&gt;4-&gt;4</pre>
+  <h4>Ask before coding</h4><ul><li>Can I reuse the nodes?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>A dummy head means you never special-case the first node.</p></details>
+  <details><summary>Approach</summary><p>Dummy node plus tail. Attach the smaller head, advance it. When one list ends, attach the rest of the other.</p><p class="cx"><b>Time</b> O(m + n) &nbsp; <b>Space</b> O(1)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> mergeTwoLists(a: ListNode | <span class="k">null</span>, b: ListNode | <span class="k">null</span>): ListNode | <span class="k">null</span> {
+  <span class="k">const</span> dummy = <span class="k">new</span> ListNode(<span class="n">0</span>);
+  <span class="k">let</span> tail = dummy;
+  <span class="k">while</span> (a &amp;&amp; b) {
+    <span class="k">if</span> (a.val &lt;= b.val) { tail.next = a; a = a.next; }
+    <span class="k">else</span> { tail.next = b; b = b.next; }
+    tail = tail.next;
+  }
+  tail.next = a ?? b;
+  <span class="k">return</span> dummy.next;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Forgetting to attach the leftover list.</li></ul>
+  <div class="say"><b>Say out loud:</b> Dummy head so the first node isn't a special case, then a standard merge.</div>
+</article><article id="p-linked-list-cycle" class="page">
+  <div class="crumb">#141 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/linked-list-cycle/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Linked List Cycle</h2>
+  <p>Does the linked list loop back on itself?</p>
+  <pre class="ex">3-&gt;2-&gt;0-&gt;-4-&gt;(back to 2) -&gt; true</pre>
+  <h4>Ask before coding</h4><ul><li>O(1) memory expected?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>A slow runner and a fast runner on a circular track meet.</p></details>
+  <details><summary>Approach</summary><p>slow moves 1, fast moves 2. If fast hits the end, no cycle. If they meet, there's a cycle.</p><p class="cx"><b>Time</b> O(n) &nbsp; <b>Space</b> O(1)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> hasCycle(head: ListNode | <span class="k">null</span>): boolean {
+  <span class="k">let</span> slow = head, fast = head;
+  <span class="k">while</span> (fast &amp;&amp; fast.next) {
+    slow = slow!.next;
+    fast = fast.next.next;
+    <span class="k">if</span> (slow === fast) <span class="k">return</span> <span class="k">true</span>;
+  }
+  <span class="k">return</span> <span class="k">false</span>;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Check fast &amp;&amp; fast.next before fast.next.next.</li><li>A Set of visited nodes works too, with O(n) memory.</li></ul>
+  <div class="say"><b>Say out loud:</b> A visited set is easy. Floyd's two pointers do it with O(1) memory.</div>
+</article></section><section class="ch" id="pc-trees"><h2>Trees and BFS</h2><p>Recursion for depth-style questions. A queue, level by level, for breadth.</p><article id="p-max-depth" class="page">
+  <div class="crumb">#104 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/maximum-depth-of-binary-tree/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Maximum Depth of Binary Tree</h2>
+  <p>Return the number of nodes on the longest root-to-leaf path.</p>
+  <pre class="ex">[3,9,20,null,null,15,7] -&gt; 3</pre>
+  <h4>Ask before coding</h4><ul><li>Empty tree is 0?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>Depth of a node = 1 + depth of its deeper child.</p></details>
+  <details><summary>Approach</summary><p>Recursion: null is 0, otherwise 1 + max of left and right.</p><p class="cx"><b>Time</b> O(n) &nbsp; <b>Space</b> O(h), h = height</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> maxDepth(root: TreeNode | <span class="k">null</span>): number {
+  <span class="k">if</span> (!root) <span class="k">return</span> <span class="n">0</span>;
+  <span class="k">return</span> <span class="n">1</span> + Math.max(maxDepth(root.left), maxDepth(root.right));
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Very deep trees can overflow the call stack. BFS level count avoids that.</li></ul>
+  <div class="say"><b>Say out loud:</b> Recursive definition, each node visited once. Stack depth is the tree height.</div>
+</article><article id="p-invert-tree" class="page">
+  <div class="crumb">#226 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/invert-binary-tree/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Invert Binary Tree</h2>
+  <p>Mirror the tree: swap every node's left and right children.</p>
+  <pre class="ex">[4,2,7,1,3,6,9] -&gt; [4,7,2,9,6,3,1]</pre>
+  <h4>Ask before coding</h4><ul><li>In place OK?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>Swap at the root, then do the same for each child.</p></details>
+  <details><summary>Approach</summary><p>Recursively invert both children and assign them swapped.</p><p class="cx"><b>Time</b> O(n) &nbsp; <b>Space</b> O(h)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> invertTree(root: TreeNode | <span class="k">null</span>): TreeNode | <span class="k">null</span> {
+  <span class="k">if</span> (!root) <span class="k">return</span> <span class="k">null</span>;
+  [root.left, root.right] = [invertTree(root.right), invertTree(root.left)];
+  <span class="k">return</span> root;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Swapping then recursing into the 'wrong' side if you reuse old variables.</li></ul>
+  <div class="say"><b>Say out loud:</b> Each node does the same small job, swap children, so recursion fits.</div>
+</article><article id="p-level-order" class="page">
+  <div class="crumb">#102 · <span class="d-Medium">Medium</span> · <a href="https://leetcode.com/problems/binary-tree-level-order-traversal/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Binary Tree Level Order Traversal</h2>
+  <p>Return node values level by level, left to right.</p>
+  <pre class="ex">[3,9,20,null,null,15,7] -&gt; [[3],[9,20],[15,7]]</pre>
+  <h4>Ask before coding</h4><ul><li>Empty tree returns []?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>BFS: process one whole level, collect the next level.</p></details>
+  <details><summary>Approach</summary><p>Start with [root]. Record its values. Build the next level from the children. Repeat until empty.</p><p class="cx"><b>Time</b> O(n) &nbsp; <b>Space</b> O(w), w = widest level</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> levelOrder(root: TreeNode | <span class="k">null</span>): number[][] {
+  <span class="k">if</span> (!root) <span class="k">return</span> [];
+  <span class="k">const</span> out: number[][] = [];
+  <span class="k">let</span> level = [root];
+  <span class="k">while</span> (level.length) {
+    out.push(level.map(n =&gt; n.val));
+    <span class="k">const</span> next: TreeNode[] = [];
+    <span class="k">for</span> (<span class="k">const</span> n <span class="k">of</span> level) {
+      <span class="k">if</span> (n.left) next.push(n.left);
+      <span class="k">if</span> (n.right) next.push(n.right);
+    }
+    level = next;
+  }
+  <span class="k">return</span> out;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>queue.shift() in JS is O(n). Use level arrays or a head index.</li></ul>
+  <div class="say"><b>Say out loud:</b> Breadth-first. I process a full level at a time so grouping comes for free.</div>
+</article></section><section class="ch" id="pc-grid"><h2>Grids and graphs</h2><p>Each cell is a node with 4 neighbours. Visit with DFS or BFS, mark visited.</p><article id="p-number-of-islands" class="page">
+  <div class="crumb">#200 · <span class="d-Medium">Medium</span> · <a href="https://leetcode.com/problems/number-of-islands/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Number of Islands</h2>
+  <p>Grid of '1' (land) and '0' (water). Count groups of land connected up, down, left, right.</p>
+  <pre class="ex">4x5 grid with three separate land groups -&gt; 3</pre>
+  <h4>Ask before coding</h4><ul><li>Diagonals count?</li><li>Can I modify the grid?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>Every time you find unvisited land, that's a new island. Then sink the whole island.</p></details>
+  <details><summary>Approach</summary><p>Scan every cell. On a '1', count an island and flood fill it with DFS (stack), turning connected land to '0' so it's never counted again.</p><p class="cx"><b>Time</b> O(rows · cols) &nbsp; <b>Space</b> O(rows · cols) worst case</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> numIslands(grid: string[][]): number {
+  <span class="k">const</span> rows = grid.length, cols = grid[<span class="n">0</span>]?.length ?? <span class="n">0</span>;
+  <span class="k">let</span> islands = <span class="n">0</span>;
+  <span class="k">for</span> (<span class="k">let</span> r = <span class="n">0</span>; r &lt; rows; r++) {
+    <span class="k">for</span> (<span class="k">let</span> c = <span class="n">0</span>; c &lt; cols; c++) {
+      <span class="k">if</span> (grid[r][c] !== <span class="s">"1"</span>) <span class="k">continue</span>;
+      islands++;
+      <span class="k">const</span> stack: [number, number][] = [[r, c]];
+      grid[r][c] = <span class="s">"0"</span>; <span class="c">// mark visited when pushed</span>
+      <span class="k">while</span> (stack.length) {
+        <span class="k">const</span> [y, x] = stack.pop()!;
+        <span class="k">for</span> (<span class="k">const</span> [dy, dx] <span class="k">of</span> [[<span class="n">1</span>, <span class="n">0</span>], [-<span class="n">1</span>, <span class="n">0</span>], [<span class="n">0</span>, <span class="n">1</span>], [<span class="n">0</span>, -<span class="n">1</span>]]) {
+          <span class="k">const</span> ny = y + dy, nx = x + dx;
+          <span class="k">if</span> (ny &gt;= <span class="n">0</span> &amp;&amp; ny &lt; rows &amp;&amp; nx &gt;= <span class="n">0</span> &amp;&amp; nx &lt; cols &amp;&amp; grid[ny][nx] === <span class="s">"1"</span>) {
+            grid[ny][nx] = <span class="s">"0"</span>;
+            stack.push([ny, nx]);
+          }
+        }
+      }
+    }
+  }
+  <span class="k">return</span> islands;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Mark visited when you push, not when you pop, or cells get pushed many times.</li><li>Bounds check before reading grid[ny][nx].</li><li>If you can't modify the input, use a visited Set of 'r,c'.</li></ul>
+  <div class="say"><b>Say out loud:</b> Each land cell is a node with up to 4 neighbours. Counting islands is counting connected components.</div>
+</article></section><section class="ch" id="pc-intervals"><h2>Intervals</h2><p>Sort by start, then walk and merge.</p><article id="p-merge-intervals" class="page">
+  <div class="crumb">#56 · <span class="d-Medium">Medium</span> · <a href="https://leetcode.com/problems/merge-intervals/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Merge Intervals</h2>
+  <p>Merge all overlapping intervals.</p>
+  <pre class="ex">[[1,3],[2,6],[8,10],[15,18]] -&gt; [[1,6],[8,10],[15,18]]
+[[1,4],[4,5]] -&gt; [[1,5]]</pre>
+  <h4>Ask before coding</h4><ul><li>Do touching intervals like [1,4],[4,5] merge?</li><li>Is the input sorted?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>After sorting by start, overlaps are neighbours.</p></details>
+  <details><summary>Approach</summary><p>Sort by start. For each interval, if it starts before the last merged one ends, extend the end. Otherwise start a new one.</p><p class="cx"><b>Time</b> O(n log n) &nbsp; <b>Space</b> O(n)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> mergeIntervals(intervals: number[][]): number[][] {
+  <span class="k">const</span> sorted = [...intervals].sort((a, b) =&gt; a[<span class="n">0</span>] - b[<span class="n">0</span>]);
+  <span class="k">const</span> out: number[][] = [];
+  <span class="k">for</span> (<span class="k">const</span> [s, e] <span class="k">of</span> sorted) {
+    <span class="k">const</span> last = out[out.length - <span class="n">1</span>];
+    <span class="k">if</span> (last &amp;&amp; s &lt;= last[<span class="n">1</span>]) last[<span class="n">1</span>] = Math.max(last[<span class="n">1</span>], e); <span class="c">// overlap: extend</span>
+    <span class="k">else</span> out.push([s, e]);
+  }
+  <span class="k">return</span> out;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Default sort() compares as strings. Always pass (a, b) =&gt; a[0] - b[0].</li><li>Use max for the end ([1,4],[2,3] stays [1,4]).</li></ul>
+  <div class="say"><b>Say out loud:</b> Sorting by start puts overlapping intervals next to each other, then one pass merges them.</div>
+</article></section><section class="ch" id="pc-dp"><h2>Simple DP</h2><p>The answer for n builds from smaller answers. Keep only what you need.</p><article id="p-climbing-stairs" class="page">
+  <div class="crumb">#70 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/climbing-stairs/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Climbing Stairs</h2>
+  <p>You climb 1 or 2 steps at a time. How many distinct ways to reach step n?</p>
+  <pre class="ex">n = 2 -&gt; 2
+n = 3 -&gt; 3
+n = 5 -&gt; 8</pre>
+  <h4>Ask before coding</h4><ul><li>n &gt;= 1?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>To reach step n, your last move came from n-1 or n-2.</p></details>
+  <details><summary>Approach</summary><p>ways(n) = ways(n-1) + ways(n-2). It's Fibonacci. Keep only the last two values.</p><p class="cx"><b>Time</b> O(n) &nbsp; <b>Space</b> O(1)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> climbStairs(n: number): number {
+  <span class="c">// ways(n) = ways(n-1) + ways(n-2), keep only the last two</span>
+  <span class="k">let</span> a = <span class="n">1</span>, b = <span class="n">1</span>;
+  <span class="k">for</span> (<span class="k">let</span> i = <span class="n">2</span>; i &lt;= n; i++) [a, b] = [b, a + b];
+  <span class="k">return</span> b;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Plain recursion without memo is O(2^n).</li></ul>
+  <div class="say"><b>Say out loud:</b> The last step was either one or two, so the answer is the sum of the two before. Bottom up with two variables.</div>
+</article><article id="p-max-subarray" class="page">
+  <div class="crumb">#53 · <span class="d-Medium">Medium</span> · <a href="https://leetcode.com/problems/maximum-subarray/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Maximum Subarray</h2>
+  <p>Return the largest sum of a contiguous, non-empty subarray.</p>
+  <pre class="ex">[-2,1,-3,4,-1,2,1,-5,4] -&gt; 6 ([4,-1,2,1])
+[-3,-1,-2] -&gt; -1</pre>
+  <h4>Ask before coding</h4><ul><li>All negatives possible?</li><li>Non-empty?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>At each index: is it better to extend the previous run or start over here?</p></details>
+  <details><summary>Approach</summary><p>Kadane: cur = max(num, cur + num). best = max(best, cur).</p><p class="cx"><b>Time</b> O(n) &nbsp; <b>Space</b> O(1)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> maxSubArray(nums: number[]): number {
+  <span class="c">// Kadane: either extend the current run or start fresh here</span>
+  <span class="k">let</span> cur = nums[<span class="n">0</span>], best = nums[<span class="n">0</span>];
+  <span class="k">for</span> (<span class="k">let</span> i = <span class="n">1</span>; i &lt; nums.length; i++) {
+    cur = Math.max(nums[i], cur + nums[i]);
+    best = Math.max(best, cur);
+  }
+  <span class="k">return</span> best;
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Starting best at 0 fails when every number is negative. Start at nums[0].</li></ul>
+  <div class="say"><b>Say out loud:</b> A negative running sum only hurts, so drop it and start fresh. One pass.</div>
+</article></section><section class="ch" id="pc-strings"><h2>Strings</h2><p>Compare character by character, stop at the first mismatch.</p><article id="p-longest-common-prefix" class="page">
+  <div class="crumb">#14 · <span class="d-Easy">Easy</span> · <a href="https://leetcode.com/problems/longest-common-prefix/" target="_blank" rel="noopener">LeetCode</a></div>
+  <h2>Longest Common Prefix</h2>
+  <p>Return the longest prefix shared by all strings.</p>
+  <pre class="ex">["flower","flow","flight"] -&gt; "fl"
+["dog","racecar","car"] -&gt; ""</pre>
+  <h4>Ask before coding</h4><ul><li>Empty list returns empty string?</li></ul>
+  <details class="hint"><summary>Hint</summary><p>Check column by column across all strings.</p></details>
+  <details><summary>Approach</summary><p>For each index of the first string, check every string has the same character there. Stop at the first mismatch or the shortest string's end.</p><p class="cx"><b>Time</b> O(total characters) &nbsp; <b>Space</b> O(1)</p></details>
+  <details><summary>Solution (TypeScript, tested)</summary><pre class="code"><button class="copy" type="button">Copy</button><code><span class="k">function</span> longestCommonPrefix(strs: string[]): string {
+  <span class="k">if</span> (strs.length === <span class="n">0</span>) <span class="k">return</span> <span class="s">""</span>;
+  <span class="k">for</span> (<span class="k">let</span> i = <span class="n">0</span>; i &lt; strs[<span class="n">0</span>].length; i++) {
+    <span class="k">for</span> (<span class="k">const</span> s <span class="k">of</span> strs) {
+      <span class="k">if</span> (i &gt;= s.length || s[i] !== strs[<span class="n">0</span>][i]) <span class="k">return</span> strs[<span class="n">0</span>].slice(<span class="n">0</span>, i);
+    }
+  }
+  <span class="k">return</span> strs[<span class="n">0</span>];
+}</code></pre></details>
+  <h4>Traps</h4><ul><li>Running past a shorter string's end.</li></ul>
+  <div class="say"><b>Say out loud:</b> Vertical scan, column by column, stop at the first mismatch.</div>
+</article></section>
+
+<section class="ch" id="plan">
+  <h2>A 5 day plan</h2>
+  <table>
+    <tr><td>Day 1</td><td>Start pages, then hash map, queue, heap. Problems: hashing chapter.</td></tr>
+    <tr><td>Day 2</td><td>Traversals, BST, trie. Problems: two pointers, sliding window, stack.</td></tr>
+    <tr><td>Day 3</td><td>Graphs, topological sort, binary search templates. Problems: binary search, linked list, trees.</td></tr>
+    <tr><td>Day 4</td><td>Sorting, backtracking, DP. Problems: grid, intervals, DP. Write LRU cache and the rate limiter from a blank file.</td></tr>
+    <tr><td>Day 5</td><td>Redo everything you peeked at. Skim the "Say out loud" lines.</td></tr>
+  </table>
+  <p class="lead">The night before an interview: one warm-up problem, then stop.</p>
+</section>
+<footer>Built by <a href="https://github.com/nadimtuhin">Nadim Tuhin</a> · source and tests: <a href="https://github.com/nadimtuhin/dsa-refresher">github.com/nadimtuhin/dsa-refresher</a></footer>
+</main>
+<script>
+  const KEY = "dsa-refresher-done";
+  const done = new Set(JSON.parse(localStorage.getItem(KEY) || "[]"));
+  const total = 45;
+  function render() {
+    document.querySelectorAll(".done").forEach(b => { b.checked = done.has(b.dataset.id); b.closest("a").classList.toggle("isdone", b.checked); });
+    document.getElementById("cnt").textContent = done.size;
+    document.getElementById("bar").style.width = (done.size / total * 100) + "%";
+  }
+  document.querySelectorAll(".done").forEach(b => {
+    b.addEventListener("click", e => e.stopPropagation());
+    b.addEventListener("change", () => { b.checked ? done.add(b.dataset.id) : done.delete(b.dataset.id); localStorage.setItem(KEY, JSON.stringify([...done])); render(); });
+  });
+  render();
+  document.getElementById("q").addEventListener("input", e => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll("aside a[data-id]").forEach(a => { a.style.display = a.textContent.toLowerCase().includes(q) ? "" : "none"; });
+  });
+  document.querySelectorAll(".copy").forEach(btn => btn.addEventListener("click", () => {
+    navigator.clipboard.writeText(btn.nextElementSibling.textContent).then(() => { btn.textContent = "Copied"; setTimeout(() => btn.textContent = "Copy", 1200); });
+  }));
+  const links = new Map([...document.querySelectorAll("aside a[data-id]")].map(a => [a.dataset.id, a]));
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { links.forEach(a => a.classList.remove("on")); const a = links.get(e.target.id); if (a) { a.classList.add("on"); a.scrollIntoView({ block: "nearest" }); } }
+  }), { rootMargin: "-10% 0px -80% 0px" });
+  document.querySelectorAll("article.page, #start, #pick, #bigo, #compare, #method, #ts, #plan").forEach(el => io.observe(el));
+</script>
+</body></html>
