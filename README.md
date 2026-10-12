@@ -4,7 +4,7 @@ A compact data structures, algorithms and system design refresher for interviews
 
 - Part 1: 18 concepts. How each structure works, what it costs, when to use it, where it shows up in production.
 - Part 2: 27 easy and easy-medium problems grouped by pattern, with hints, approaches and traps.
-- Part 3: 13 system design topics. Building blocks (consistent hashing, caching, quorums, pagination, idempotency, outbox, retries and breakers) and worked design problems (URL shortener, rate limiter, webhooks, job dispatch, news feed, chat).
+- Part 3: 14 system design topics. Building blocks (consistent hashing, caching, quorums, pagination, idempotency, outbox, retries and breakers) and worked design problems (URL shortener, rate limiter, webhooks, job dispatch, news feed, chat, an AI app builder like Lovable).
 
 Every implementation and solution is plain JavaScript, has tests, and has a step-by-step animation (play, pause, scrub, arrow keys). The build runs all tests, replays every animation and checks it ends on the same answer as the tested code, and refuses to write the site if anything fails.
 

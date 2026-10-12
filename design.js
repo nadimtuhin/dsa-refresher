@@ -356,6 +356,79 @@ class InOrderInbox {
   }
 }
 // #endregion
+// #region app-builder
+// The model never rewrites whole files. It returns search and replace edits that apply all or nothing.
+function applyEdits(files, edits) {
+  const next = new Map(files);
+  for (const { path, search, replace } of edits) {
+    const src = next.get(path);
+    if (search === "") {
+      // empty search = create a new file
+      if (src !== undefined) return { ok: false, error: `${path} already exists` };
+      next.set(path, replace);
+      continue;
+    }
+    if (src === undefined) return { ok: false, error: `${path} not found` };
+    const at = src.indexOf(search);
+    if (at < 0) return { ok: false, error: `search text not found in ${path}` };
+    if (src.indexOf(search, at + 1) >= 0) return { ok: false, error: `search text matches twice in ${path}` };
+    next.set(path, src.slice(0, at) + replace + src.slice(at + search.length));
+  }
+  return { ok: true, files: next };
+}
+
+// Generate, apply, build. Errors go back to the model, at most maxTries times.
+// Only a version that builds is kept, so the preview never shows a broken app.
+async function generateUntilBuilds(project, prompt, { model, build, maxTries = 3 }) {
+  const base = project.versions.at(-1);
+  let feedback = null;
+  for (let attempt = 1; attempt <= maxTries; attempt++) {
+    const r = applyEdits(base, await model({ files: base, prompt, feedback }));
+    const err = r.ok ? await build(r.files) : r.error;
+    if (!err) {
+      project.versions.push(r.files);
+      return { ok: true, attempt, version: project.versions.length - 1 };
+    }
+    feedback = err;
+  }
+  return { ok: false, feedback }; // keep the last good version live and show the error
+}
+
+// Versions are never changed or deleted. Undo makes an old version the newest one again.
+const restore = (project, n) => project.versions.push(project.versions[n]) - 1;
+
+// One preview sandbox per open project. Booting takes seconds, so keep some warm and stop idle ones.
+class SandboxPool {
+  constructor({ warm = 2, idleMs = 600000, now = Date.now } = {}) {
+    Object.assign(this, { target: warm, idleMs, now, warm: [], live: new Map(), n: 0 });
+    this.refill();
+  }
+  refill() {
+    // runs in the background in real life; booting is slow
+    while (this.warm.length < this.target) this.warm.push(`sb${++this.n}`);
+  }
+  open(project) {
+    const s = this.live.get(project);
+    if (s) {
+      s.seen = this.now();
+      return { id: s.id, cold: false };
+    }
+    const cold = this.warm.length === 0;
+    const id = cold ? `sb${++this.n}` : this.warm.shift();
+    this.live.set(project, { id, seen: this.now() });
+    return { id, cold };
+  }
+  reap() {
+    const stopped = [];
+    for (const [p, s] of this.live)
+      if (this.now() - s.seen >= this.idleMs) {
+        this.live.delete(p);
+        stopped.push(s.id);
+      }
+    return stopped;
+  }
+}
+// #endregion
 export {
   hash32,
   HashRing,
@@ -386,7 +459,11 @@ export {
   publish,
   readFeed,
   mergeNewest,
-  InOrderInbox
+  InOrderInbox,
+  applyEdits,
+  generateUntilBuilds,
+  restore,
+  SandboxPool
 };
 
 // ---------- tests: [actual, expected] ----------
@@ -640,6 +717,39 @@ export const tests = {
       [shown, [1, 2, 3, 4, 5]],
       [gaps, [null, [2, 2], null, null, [4, 4], null, null]]
     ];
+  }  ,
+  "app-builder": async () => {
+    const files = new Map([["App.jsx", "<h1>Hi</h1>\n<p>Hi</p>"]]);
+    const e = (path, search, replace) => ({ path, search, replace });
+    const ok = applyEdits(files, [e("App.jsx", "<h1>Hi</h1>", "<h1>Salon</h1>"), e("Book.jsx", "", "form")]);
+    const twice = applyEdits(files, [e("App.jsx", "Hi", "Yo")]);
+    const half = applyEdits(files, [e("App.jsx", "<p>Hi</p>", "<p>x</p>"), e("App.jsx", "nope", "x")]);
+    // model: 1st reply quotes text that isn't there, 2nd doesn't build, 3rd is fine
+    const replies = [[e("App.jsx", "<h2>", "x")], [e("App.jsx", "<p>Hi</p>", "<p>{oops</p>")], [e("App.jsx", "<p>Hi</p>", "<p>Book now</p>")]];
+    const seen = [];
+    const model = async ({ feedback }) => (seen.push(feedback), replies[seen.length - 1]);
+    const build = async f => ([...f.values()].join("").includes("{oops") ? "SyntaxError: unexpected end in App.jsx" : null);
+    const project = { versions: [files] };
+    const r = await generateUntilBuilds(project, "add booking", { model, build });
+    const fail = { versions: [files] };
+    const r2 = await generateUntilBuilds(fail, "x", { model: async () => [e("App.jsx", "nope", "x")], build, maxTries: 2 });
+    const back = restore(project, 0);
+    let t = 0;
+    const pool = new SandboxPool({ warm: 2, idleMs: 1000, now: () => t });
+    const opened = ["a", "b", "c", "a"].map(p => pool.open(p).cold);
+    t = 500; pool.open("a");
+    t = 1200; const stopped = pool.reap();
+    return [
+      [[ok.ok, ok.files.get("App.jsx"), ok.files.get("Book.jsx")], [true, "<h1>Salon</h1>\n<p>Hi</p>", "form"]],
+      [twice, { ok: false, error: "search text matches twice in App.jsx" }],
+      [[half.ok, files.get("App.jsx")], [false, "<h1>Hi</h1>\n<p>Hi</p>"]],
+      [r, { ok: true, attempt: 3, version: 1 }],
+      [seen, [null, "search text not found in App.jsx", "SyntaxError: unexpected end in App.jsx"]],
+      [[r2.ok, fail.versions.length], [false, 1]],
+      [[back, project.versions[2] === files], [2, true]],
+      [opened, [false, false, true, false]],
+      [stopped.sort(), ["sb2", "sb3"]]
+    ];
   }
 };
 
@@ -660,7 +770,7 @@ export const chapters = [
     id: "problems",
     title: "Design problems",
     blurb: "Classic prompts, worked through the same 8 steps. Try each deep dive out loud before opening it.",
-    ids: ["url-shortener", "rate-limiter", "webhooks", "job-dispatch", "news-feed", "chat"]
+    ids: ["url-shortener", "rate-limiter", "webhooks", "job-dispatch", "news-feed", "chat", "app-builder"]
   }
 ];
 
@@ -1025,5 +1135,47 @@ export const meta = {
       "Order per conversation is cheap. Global order is expensive and nobody needs it."
     ],
     say: "WebSocket gateways with a presence map in Redis. Each conversation has its own sequence number, so clients order by seq, dedupe by client message id, and fill gaps after a reconnect by asking for everything after the last seq they saw."
+  },
+  "app-builder": {
+    title: "AI app builder like Lovable",
+    prompt: "A user describes an app in plain words (\"a booking site for my salon\") and gets a working web app: generated code, a live preview that updates as the AI edits, chat to change it, undo, and one click deploy.",
+    clarify: [
+      "One fixed stack, or any stack the user asks for?",
+      "Backend and database too, or front end only?",
+      "Can users also edit the code by hand?",
+      "How many projects open at once, and how long do previews stay up?",
+      "Paid in credits? Then every model call is metered."
+    ],
+    numbers: [
+      ["prompts", "say 100k daily users x 20 prompts = 2M a day, about 25 a second, peaks 5x"],
+      ["one generation", "10 to 60 seconds and tens of thousands of tokens; the model is the slowest and most expensive part"],
+      ["previews", "say 20k projects open at peak, one small sandbox each (0.25 CPU, 512 MB)"],
+      ["storage", "a project is under 1 MB of source; files stored once by hash, so a new version costs only the changed files"]
+    ],
+    api: "POST /projects                  { prompt }   { projectId }\nPOST /projects/{id}/messages     { text }     stream: tokens, file edits, build status\nGET  /projects/{id}/versions\nPOST /projects/{id}/restore      { version }\nPOST /projects/{id}/deploy                    { url }",
+    data: "projects(id, owner_id, live_version)\nversions(project_id, n, parent_n, tree_hash, prompt, created_at)\nblobs(hash, bytes)   in object storage, shared by all versions\nmessages(project_id, seq, role, text)\nusage(user_id, day, tokens, credits)",
+    deep: [
+      ["How does the AI change code safely?", "It returns small search and replace edits, not whole files. That uses fewer tokens, is faster, and can't silently drop code the model didn't mention. Edits apply all or nothing. A search text that is missing or matches twice is an error that goes back to the model."],
+      ["What if the code doesn't build?", "Build it (type check and bundle) in the sandbox. On failure, send the error back to the model and try again, up to 3 times. Only a version that builds goes live, so the preview never shows a broken app. After 3 tries, keep the last good version and show the error."],
+      ["How does the live preview work?", "Each open project gets a sandbox (a container or microVM) running the dev server. Edits are written into it and hot reload updates the preview iframe. Booting takes seconds, so keep a pool of warm sandboxes and stop ones idle for 10 minutes. A stopped project boots again from its latest version."],
+      ["How do undo and history work?", "Every applied set of edits is a new version that never changes: a tree of file hashes, with each file's content stored once. Undo makes an old version the newest one again, so nothing is lost. This is how git works, and you can simply use git."],
+      ["How do you stream progress?", "One request streams events (SSE or WebSocket): model tokens, each file edit, build started, build passed. The job runs in a worker, not in the request, so if the connection drops the client reconnects and replays events after the last one it saw."],
+      ["How does the model see a big project?", "Not the whole repo every time. Send the file tree and the files most related to the request (by name, imports, recent edits or embedding search), and let the model ask for more files with a tool call."],
+      ["How do you stop abuse and runaway cost?", "Check credits before each call and record tokens after, rate limit per user, cap tries per prompt. Sandboxes get no secrets, limited CPU and memory, and outbound network only through an allowlist."]
+    ],
+    failures: [
+      ["Model provider slow or down", "Queue the job and show progress; fail over to a second model. Never leave edits half applied."],
+      ["Edits don't apply", "All or nothing; the exact error goes back to the model."],
+      ["Build keeps failing", "Stop after 3 tries, keep the last good version live, show the error."],
+      ["Sandbox dies", "Boot a new one from the latest version. Version storage is the source of truth, not the container."],
+      ["Generated code tries to escape", "MicroVM or gVisor isolation, no credentials inside, egress allowlist, CPU and memory limits."]
+    ],
+    tradeoffs: [
+      "One fixed stack: much more reliable output, less freedom.",
+      "Search and replace edits: cheaper and safer than whole files, but the model must quote text exactly.",
+      "Warm sandbox pool: instant previews, but you pay for idle containers.",
+      "Build gate: slower replies, but users never see a broken preview."
+    ],
+    say: "Each prompt runs as a job. The model returns search and replace edits that apply all or nothing, we build in the project's sandbox, and feed errors back up to 3 times. Only a version that builds goes live. Versions are immutable trees of files stored by hash, so undo just points at an older one, and previews run in a warm pool of isolated sandboxes."
   }
 };

@@ -238,5 +238,46 @@ export const designAnims = {
         V({ "next expected": ib.next, "missing, fetch if it never comes": g ? (g[0] === g[1] ? g[0] : `${g[0]} to ${g[1]}`) : NONE }));
     }
     return [shown, [1, 2, 3, 4, 5]];
+  },
+
+  "app-builder": async f => {
+    const files = new Map([["App.jsx", "<h1>Hi</h1>"]]);
+    const e = (path, search, replace) => ({ path, search, replace });
+    const project = { versions: [files] }, log = [];
+    const ver = () => A("versions (never changed)", project.versions.map((v, i) => `v${i}: ${v.get("App.jsx")}`), { [project.versions.length - 1]: "ok" });
+    const tries = () => A("tries", log, Object.fromEntries(log.map((x, i) => [i, x.startsWith("built") ? "ok" : "bad"])));
+    f("v0 is live: App.jsx says <h1>Hi</h1>. The user types: call it Salon.", ver());
+    const replies = [[e("App.jsx", "<h2>Hi</h2>", "<h1>Salon</h1>")], [e("App.jsx", "<h1>Hi</h1>", "<h1>{Salon</h1>")], [e("App.jsx", "<h1>Hi</h1>", "<h1>Salon</h1>")]];
+    const notes = [
+      "Try 1: the model asks to replace <h2>Hi</h2>, which isn't in the file. Nothing is applied; the error goes back to the model.",
+      "Try 2: the edit applies, but the build fails on {Salon. The error goes back. The preview still shows v0.",
+      "Try 3: applies and builds. Saved as v1 and the preview hot reloads."
+    ];
+    let n = 0;
+    const build = async fs => ([...fs.values()].join("").includes("{") ? "SyntaxError in App.jsx" : null);
+    const step = (i, feedback) => f(notes[i], tries(), ver(), V({ "error from the try before": feedback ?? NONE }));
+    // replay what each try did (apply, then build) so the frame shows its outcome; v1 appears only after the gate passes
+    const model = async ({ files, feedback }) => {
+      const reply = replies[n++], a = D.applyEdits(files, reply), err = a.ok ? await build(a.files) : a.error;
+      log.push(err ? `try ${n}: ${err}` : `built on try ${n}`);
+      if (err) step(n - 1, feedback);
+      else last = feedback;
+      return reply;
+    };
+    let last;
+    const res = await D.generateUntilBuilds(project, "call it Salon", { model, build });
+    step(2, last);
+    const back = D.restore(project, 0);
+    f("Undo: v0 is copied to the top as v2. Nothing is deleted, so redo is just another restore.", tries(), ver(), V({ live: `v${back}` }));
+    let t = 0;
+    const pool = new D.SandboxPool({ warm: 2, idleMs: 1000, now: () => t }), opens = [];
+    const draw = (note, stopped = []) => f(note, A("warm pool", pool.warm), KV("running previews", [...pool.live].map(([p, s]) => [p, s.id])), A("opens", opens, Object.fromEntries(opens.map((x, i) => [i, x.endsWith("cold") ? "bad" : "ok"]))), V({ stopped: stopped.length ? stopped : "none" }));
+    draw("Previews run in sandboxes. Two are booted ahead of time.");
+    for (const p of ["a", "b", "c"]) { const r = pool.open(p); opens.push(`${p}: ${r.id} ${r.cold ? "cold" : "instant"}`); }
+    draw("Projects a and b get warm sandboxes instantly. c finds the pool empty and waits for a cold boot. Real systems refill the pool in the background.");
+    t = 500; pool.open("a");
+    t = 1200; const stopped = pool.reap();
+    draw("a stayed active; b and c were idle too long, so they are stopped. Their code is safe in version storage.", stopped);
+    return [[res.attempt, back, stopped.sort()], [3, 2, ["sb2", "sb3"]]];
   }
 };

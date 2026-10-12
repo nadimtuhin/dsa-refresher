@@ -24,7 +24,7 @@ export async function runChecks() {
   const allAnims = { ...anims, ...Object.fromEntries(Object.entries(designAnims).map(([k, v]) => ["d-" + k, v])) };
   for (const [id, trace] of Object.entries(allAnims)) {
     const fr = [];
-    const [mine, real] = trace((note, ...views) => fr.push({ note, views: JSON.parse(JSON.stringify(views)) }));
+    const [mine, real] = await trace((note, ...views) => fr.push({ note, views: JSON.parse(JSON.stringify(views)) }));
     if (JSON.stringify(mine) !== JSON.stringify(real)) errors.push(`ANIM ${id}: animation ended at ${JSON.stringify(mine)}, solution gives ${JSON.stringify(real)}`);
     if (fr.length < 2) errors.push(`ANIM ${id}: only ${fr.length} frame(s)`);
     frames[id] = fr;
