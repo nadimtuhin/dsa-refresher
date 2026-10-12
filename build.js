@@ -97,7 +97,7 @@ const nav = `
   ${P.chapters.map(c => `<div class="grp">${esc(c.title)}</div>${c.ids.map(id => link("p-" + id, P.meta[id].title, `<em class="d-${P.meta[id].diff}">${P.meta[id].diff[0]}</em>`)).join("")}`).join("")}`;
 
 const html = `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#ffffff">
 <title>DSA refresher: ${nCon} concepts, ${nPro} problems, tested JavaScript, animated</title>
 <meta name="description" content="A compact data structures and algorithms refresher for coding interviews. Every implementation and solution is JavaScript, animated step by step, and tested before the page builds.">
 <style>
@@ -179,10 +179,50 @@ details.watch{border-color:var(--ink)}details.watch .anim{border:0;padding:4px 0
 .ctl input{flex:1;min-width:120px;accent-color:var(--ink)}.ctl .cnt{font:11px var(--mono);color:var(--meta);min-width:52px;text-align:right}
 @media(prefers-reduced-motion:reduce){.cell,.pair,.bk,.svg line,.nd circle,.nd rect{transition:none}}
 @media print{.anim{display:none}}
-@media(max-width:900px){body{grid-template-columns:minmax(0,1fr)}table{display:block;overflow-x:auto}aside{position:static;height:auto;max-height:50vh}main{padding:24px}.cols{grid-template-columns:minmax(0,1fr)}}
+aside .close{display:none;position:absolute;top:max(10px,env(safe-area-inset-top));right:10px;border:1px solid var(--rule);background:#fff;border-radius:8px;width:40px;height:40px;font-size:18px;color:var(--ink)}
+.topbar{display:none}
+aside{grid-column:1;grid-row:1}main{grid-column:2;grid-row:1}
+@media(max-width:900px){
+main{grid-column:1;grid-row:2}
+body{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr;font-size:16px}.topbar{grid-column:1;grid-row:1}
+.topbar{display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:30;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--rule);padding:8px 14px;padding-top:max(8px,env(safe-area-inset-top))}
+.topbar button{font:14px var(--sans);font-weight:600;border:1px solid var(--rule);background:#fff;border-radius:8px;min-height:40px;padding:0 14px;color:var(--ink)}
+.topbar .tt{flex:1;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .tp{font:12px var(--mono);color:var(--meta)}
+aside{position:fixed;z-index:40;top:0;left:0;bottom:0;height:100%;width:min(86vw,320px);transform:translateX(-100%);transition:transform .25s ease,visibility 0s .25s;visibility:hidden;padding-top:max(16px,env(safe-area-inset-top));padding-bottom:max(40px,env(safe-area-inset-bottom));overscroll-behavior:contain}
+body.nav-open aside{transform:none;visibility:visible;transition:transform .25s ease;box-shadow:0 0 40px rgba(0,0,0,.18)}
+.scrim{position:fixed;inset:0;z-index:35;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s}
+body.nav-open .scrim{opacity:1;pointer-events:auto}
+body.nav-open{overflow:hidden}
+aside a{padding:9px 20px;font-size:15px}
+aside .close{display:block}aside .brand,aside .prog{padding-right:64px}
+main{padding:20px 16px 96px}
+.intro h1{font-size:26px}section.ch>h2{font-size:21px}.page h2{font-size:19px}
+article,section,.partHead,.intro{scroll-margin-top:64px}
+table{display:block;overflow-x:auto;font-size:14px}
+.cols{grid-template-columns:minmax(0,1fr)}
+pre{font-size:12.5px}
+details summary{padding:12px 0}
+.anim{padding:12px 10px 10px;margin:12px -6px}
+.cell{min-width:32px;height:32px;padding:0 5px;font-size:12px}.slot{min-width:32px}
+.grid .cell{min-width:30px;width:30px;height:30px}
+.note{font-size:14.5px}
+.ctl{gap:6px}
+.ctl button,.ctl select{min-height:40px;min-width:40px;font-size:14px}
+.ctl input{order:9;flex-basis:100%;height:44px;margin:0}
+.ctl input::-webkit-slider-thumb{width:26px;height:26px}.ctl input::-moz-range-thumb{width:26px;height:26px}
+.grp{font-size:12px}.ctl .cnt{font-size:12px}
+.ctl .cnt{margin-left:auto}
+.view{overflow-x:auto;-webkit-overflow-scrolling:touch}.view .svg{min-width:440px}
+.copy{padding:6px 10px}
+}
+@media(prefers-reduced-motion:reduce){aside,.scrim{transition:none}}
 @media print{aside{display:none}body{display:block}details{border:0;padding:0}details>*{display:block}.copy{display:none}}
 </style></head><body>
-<aside aria-label="Contents">
+<header class="topbar"><button type="button" id="menu" aria-controls="nav" aria-expanded="false">Menu</button><span class="tt" id="tt">DSA refresher</span><span class="tp"><span id="cnt2">0</span>/${total}</span></header>
+<div class="scrim" id="scrim"></div>
+<aside aria-label="Contents" id="nav">
+  <button type="button" class="close" id="navclose" aria-label="Close menu">✕</button>
   <div class="brand">DSA refresher</div>
   <div class="prog"><span id="cnt">0</span> / ${total} done</div>
   <div class="bar"><i id="bar"></i></div>
@@ -328,7 +368,7 @@ ${P.chapters.map(c => `<section class="ch" id="pc-${c.id}"><h2>${esc(c.title)}</
   const total = ${total};
   function render() {
     document.querySelectorAll(".done").forEach(b => { b.checked = done.has(b.dataset.id); b.closest("a").classList.toggle("isdone", b.checked); });
-    document.getElementById("cnt").textContent = done.size;
+    document.getElementById("cnt").textContent = done.size; document.getElementById("cnt2").textContent = done.size;
     document.getElementById("bar").style.width = (done.size / total * 100) + "%";
   }
   document.querySelectorAll(".done").forEach(b => {
@@ -343,9 +383,24 @@ ${P.chapters.map(c => `<section class="ch" id="pc-${c.id}"><h2>${esc(c.title)}</
   document.querySelectorAll(".copy").forEach(btn => btn.addEventListener("click", () => {
     navigator.clipboard.writeText(btn.nextElementSibling.textContent).then(() => { btn.textContent = "Copied"; setTimeout(() => btn.textContent = "Copy", 1200); });
   }));
+  const mobile = matchMedia("(max-width: 900px)"), menu = document.getElementById("menu");
+  const setNav = open => { document.body.classList.toggle("nav-open", open); menu.setAttribute("aria-expanded", open); if (open) (document.querySelector("aside a.on") || document.querySelector("aside a"))?.scrollIntoView({ block: "center" }); };
+  menu.addEventListener("click", () => setNav(true));
+  document.getElementById("scrim").addEventListener("click", () => setNav(false));
+  document.getElementById("navclose").addEventListener("click", () => setNav(false));
+  document.querySelectorAll("aside a").forEach(a => a.addEventListener("click", ev => {
+    if (!mobile.matches || ev.target.closest(".done")) return;
+    ev.preventDefault();                       // close first, then scroll: the scroll lock would swallow the jump
+    setNav(false);
+    const id = a.getAttribute("href").slice(1);
+    document.getElementById(id)?.scrollIntoView({ block: "start", behavior: "instant" }); // lock already released by setNav(false)
+    history.replaceState(null, "", "#" + id);
+    document.getElementById("tt").textContent = a.querySelector("span").textContent;
+  }));
+  addEventListener("keydown", e => { if (e.key === "Escape") setNav(false); });
   const links = new Map([...document.querySelectorAll("aside a[data-id]")].map(a => [a.dataset.id, a]));
   const io = new IntersectionObserver(es => es.forEach(e => {
-    if (e.isIntersecting) { links.forEach(a => a.classList.remove("on")); const a = links.get(e.target.id); if (a) { a.classList.add("on"); a.scrollIntoView({ block: "nearest" }); } }
+    if (e.isIntersecting) { links.forEach(a => a.classList.remove("on")); const a = links.get(e.target.id); if (a) { a.classList.add("on"); document.getElementById("tt").textContent = a.querySelector("span").textContent; if (!mobile.matches) a.scrollIntoView({ block: "nearest" }); } }
   }), { rootMargin: "-10% 0px -80% 0px" });
   document.querySelectorAll("article.page, #start, #pick, #bigo, #compare, #method, #ts").forEach(el => io.observe(el));
 </script>

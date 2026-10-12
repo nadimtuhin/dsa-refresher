@@ -114,7 +114,18 @@
       if (ev.key === "ArrowRight") { stop(); go(i + 1); ev.preventDefault(); }
       if (ev.key === "ArrowLeft") { stop(); go(i - 1); ev.preventDefault(); }
     });
-    draw();
+    // pin the stage to its tallest frame so the page never jumps while it plays
+    const fit = () => {
+      stage.style.minHeight = note.style.minHeight = "";
+      let hs = 0, hn = 0;
+      for (let k = 0; k < fr.length; k++) { i = k; draw(); hs = Math.max(hs, stage.offsetHeight); hn = Math.max(hn, note.offsetHeight); }
+      stage.style.minHeight = hs + "px"; note.style.minHeight = hn + "px";
+      i = 0; draw();
+    };
+    if (el.offsetParent) fit(); else draw();             // hidden (closed <details>): measure on first open
+    el.closest("details")?.addEventListener("toggle", function once(ev) { if (ev.target.open) { fit(); ev.target.removeEventListener("toggle", once); } });
+    let w = innerWidth;
+    addEventListener("resize", () => { if (innerWidth !== w && el.offsetParent) { w = innerWidth; const k = i; fit(); go(k); } });
     // autoplay once when scrolled into view (skipped for reduced motion)
     if (!reduced) {
       const io = new IntersectionObserver(es => { if (es[0].isIntersecting && i === 0 && !timer) { start(); io.disconnect(); } }, { threshold: 0.6 });
