@@ -4,6 +4,27 @@
   "framework": "astro",
   "cleanUrls": true,
   "headers": [
-    { "source": "/(site.css|player.js|app.js)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=86400" }] }
+    {
+      "source": "/(site.css|player.js|app.js)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, stale-while-revalidate=86400"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "dsa-refresher-pi.vercel.app"
+        }
+      ],
+      "destination": "https://prep.nadimtuhin.com/:path*",
+      "permanent": true
+    }
   ]
 }

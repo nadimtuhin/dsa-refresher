@@ -13,4 +13,4 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: https://dsa-refresher-pi.vercel.app/sitemap.xml
+Sitemap: https://prep.nadimtuhin.com/sitemap.xml

@@ -1,7 +1,7 @@
 // Titles, structured data and FAQ pairs. Everything marked up here is also visible text on the page.
 import { esc } from "./bodies.js";
 
-export const SITE = "https://dsa-refresher-pi.vercel.app";
+export const SITE = "https://prep.nadimtuhin.com";
 export const BOOK_NAME = "DSA refresher";
 export const AUTHOR = { "@type": "Person", name: "Nadim Tuhin", url: "https://github.com/nadimtuhin" };
 export const PUBLISHED = "2026-10-12"; // first commit of the book

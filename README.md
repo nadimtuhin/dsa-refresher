@@ -8,7 +8,7 @@ A compact data structures, algorithms and system design refresher for interviews
 
 Every implementation and solution is plain JavaScript, has tests, and has a step-by-step animation (play, pause, scrub, arrow keys). The build runs all tests, replays every animation and checks it ends on the same answer as the tested code, and refuses to write the site if anything fails.
 
-Live: https://dsa-refresher-pi.vercel.app
+Live: https://prep.nadimtuhin.com
 
 ## Build
 
