@@ -79,9 +79,7 @@ const nav = `
   <div class="part">Part 1 · Concepts</div>
   ${C.chapters.map(c => `<div class="grp">${esc(c.title)}</div>${c.ids.map(id => link("c-" + id, C.meta[id].title)).join("")}`).join("")}
   <div class="part">Part 2 · Problems</div>
-  ${P.chapters.map(c => `<div class="grp">${esc(c.title)}</div>${c.ids.map(id => link("p-" + id, P.meta[id].title, `<em class="d-${P.meta[id].diff}">${P.meta[id].diff[0]}</em>`)).join("")}`).join("")}
-  <div class="part">End</div>
-  ${plain("plan", "A 5 day plan")}`;
+  ${P.chapters.map(c => `<div class="grp">${esc(c.title)}</div>${c.ids.map(id => link("p-" + id, P.meta[id].title, `<em class="d-${P.meta[id].diff}">${P.meta[id].diff[0]}</em>`)).join("")}`).join("")}`;
 
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -150,8 +148,8 @@ footer{margin-top:64px;font:12px var(--mono);color:var(--meta)}
 <div class="intro" id="start">
   <h1>Data structures and algorithms, refreshed</h1>
   <p class="lead">${nCon} concepts and ${nPro} interview problems. Every implementation and solution is TypeScript, and all ${pass} tests pass before this page is built. Tick items off in the sidebar; progress is saved in your browser.</p>
-  <p><b>Part 1, Concepts:</b> how each structure works inside, what it costs, when to reach for it, and where it shows up in production. Read "How it works", then explain it out loud in 60 seconds before opening the code.</p>
-  <p><b>Part 2, Problems:</b> easy and easy-medium problems grouped by pattern. Read the prompt, say the clarifying questions, try for 10 minutes, then open the hint, the approach, and the solution in that order. Redo the ones you peeked at the next day, from a blank file.</p>
+  <p><b>Part 1, Concepts:</b> how each structure works inside, what it costs, when to reach for it, and where it shows up in production. Read "How it works", then explain it out loud before opening the code.</p>
+  <p><b>Part 2, Problems:</b> easy and easy-medium problems grouped by pattern. Read the prompt, say the clarifying questions, try it yourself first, then open the hint, the approach, and the solution in that order. Redo the ones you peeked at the next day, from a blank file.</p>
 </div>
 
 <section class="ch" id="pick">
@@ -275,18 +273,6 @@ ${C.chapters.map(c => `<section class="ch" id="cc-${c.id}"><h2>${esc(c.title)}</
 
 <div class="partHead" id="part2"><h1>Part 2 · Problems</h1><p class="lead">Grouped by pattern. Try first, then hint, approach, solution.</p></div>
 ${P.chapters.map(c => `<section class="ch" id="pc-${c.id}"><h2>${esc(c.title)}</h2><p>${esc(c.blurb)}</p>${c.ids.map(problemPage).join("")}</section>`).join("")}
-
-<section class="ch" id="plan">
-  <h2>A 5 day plan</h2>
-  <table>
-    <tr><td>Day 1</td><td>Start pages, then hash map, queue, heap. Problems: hashing chapter.</td></tr>
-    <tr><td>Day 2</td><td>Traversals, BST, trie. Problems: two pointers, sliding window, stack.</td></tr>
-    <tr><td>Day 3</td><td>Graphs, topological sort, binary search templates. Problems: binary search, linked list, trees.</td></tr>
-    <tr><td>Day 4</td><td>Sorting, backtracking, DP. Problems: grid, intervals, DP. Write LRU cache and the rate limiter from a blank file.</td></tr>
-    <tr><td>Day 5</td><td>Redo everything you peeked at. Skim the "Say out loud" lines.</td></tr>
-  </table>
-  <p class="lead">The night before an interview: one warm-up problem, then stop.</p>
-</section>
 <footer>Built by <a href="https://github.com/nadimtuhin">Nadim Tuhin</a> · source and tests: <a href="https://github.com/nadimtuhin/dsa-refresher">github.com/nadimtuhin/dsa-refresher</a> · <a href="https://dsa-refresher-pi.vercel.app">live</a></footer>
 </main>
 <script>
@@ -314,7 +300,7 @@ ${P.chapters.map(c => `<section class="ch" id="pc-${c.id}"><h2>${esc(c.title)}</
   const io = new IntersectionObserver(es => es.forEach(e => {
     if (e.isIntersecting) { links.forEach(a => a.classList.remove("on")); const a = links.get(e.target.id); if (a) { a.classList.add("on"); a.scrollIntoView({ block: "nearest" }); } }
   }), { rootMargin: "-10% 0px -80% 0px" });
-  document.querySelectorAll("article.page, #start, #pick, #bigo, #compare, #method, #ts, #plan").forEach(el => io.observe(el));
+  document.querySelectorAll("article.page, #start, #pick, #bigo, #compare, #method, #ts").forEach(el => io.observe(el));
 </script>
 </body></html>`;
 
