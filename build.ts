@@ -287,7 +287,7 @@ ${P.chapters.map(c => `<section class="ch" id="pc-${c.id}"><h2>${esc(c.title)}</
   </table>
   <p class="lead">The night before an interview: one warm-up problem, then stop.</p>
 </section>
-<footer>Built by <a href="https://github.com/nadimtuhin">Nadim Tuhin</a> · source and tests: <a href="https://github.com/nadimtuhin/dsa-refresher">github.com/nadimtuhin/dsa-refresher</a></footer>
+<footer>Built by <a href="https://github.com/nadimtuhin">Nadim Tuhin</a> · source and tests: <a href="https://github.com/nadimtuhin/dsa-refresher">github.com/nadimtuhin/dsa-refresher</a> · <a href="https://dsa-refresher-pi.vercel.app">live</a></footer>
 </main>
 <script>
   const KEY = "dsa-refresher-done";

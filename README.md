@@ -7,7 +7,7 @@ A compact data structures and algorithms refresher for coding interviews, as one
 
 Every implementation and solution is TypeScript and has tests. The build runs all tests first and refuses to write the page if any fail.
 
-Live: https://dsa-refresher.vercel.app
+Live: https://dsa-refresher-pi.vercel.app
 
 ## Build
 
