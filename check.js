@@ -7,6 +7,7 @@ import * as D from "./design.js";
 import { anims } from "./anims.js";
 import { designAnims } from "./design-anims.js";
 import { pages } from "./src/lib/pages.js";
+import { stories } from "./stories.js";
 
 export async function runChecks() {
   const errors = [];
@@ -30,6 +31,11 @@ export async function runChecks() {
     frames[id] = fr;
   }
   for (const pg of pages) if (pg.tracked && !frames[pg.slug]) errors.push(`ANIM ${pg.slug}: missing`);
+  for (const pg of pages) {
+    const s = pg.tracked && stories[pg.slug];
+    if (pg.tracked && !(s && s.story.length >= 1 && s.examples.length >= 3)) errors.push(`STORY ${pg.slug}: needs a story and at least 3 examples`);
+  }
+  for (const k of Object.keys(stories)) if (!pages.some(pg => pg.slug === k)) errors.push(`STORY ${k}: no such page`);
 
   const nFrames = Object.values(frames).reduce((s, f) => s + f.length, 0);
   return { pass, errors, frames, nAnims: Object.keys(frames).length, nFrames };

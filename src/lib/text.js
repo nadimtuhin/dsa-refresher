@@ -1,5 +1,6 @@
 // Plain markdown for llms.txt and llms-full.txt, built from the same data as the pages.
 import { sourceOf } from "./bodies.js";
+import { stories } from "../../stories.js";
 import { SITE, BOOK_NAME, urlOf } from "./seo.js";
 
 const oneLine = s => String(s).replace(/\s+/g, " ").trim();
@@ -7,6 +8,7 @@ const bullets = xs => xs.map(x => `- ${x}`).join("\n");
 const table = xs => xs.map(([a, b]) => `- ${a}: ${b}`).join("\n");
 const fence = src => "```js\n" + src + "\n```";
 const section = (title, body) => `### ${title}\n\n${body}`;
+const storyText = slug => [section("In plain words", stories[slug].story.join("\n\n")), section("Everyday examples", bullets(stories[slug].examples))];
 
 const startText = html =>
   html
@@ -21,6 +23,7 @@ const startText = html =>
 
 const conceptText = (pg, m) => [
   m.what,
+  ...storyText(pg.slug),
   section("How it works", m.how),
   section("Costs", table(m.ops)),
   section("Reach for it when", bullets(m.when)),
@@ -32,6 +35,7 @@ const conceptText = (pg, m) => [
 
 const problemText = (pg, m) => [
   `#${m.n}, ${m.diff}. ${m.prompt}`,
+  ...storyText(pg.slug),
   section("Examples", fence(m.examples.join("\n"))),
   section("Ask before coding", bullets(m.clarify)),
   section("Hint", m.hint),
@@ -43,6 +47,7 @@ const problemText = (pg, m) => [
 
 const designProblemText = (pg, m) => [
   m.prompt,
+  ...storyText(pg.slug),
   section("Ask first", bullets(m.clarify)),
   section("Numbers", table(m.numbers)),
   section("API", fence(m.api)),

@@ -2,6 +2,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { startPages } from "../../start.js";
+import { stories } from "../../stories.js";
 
 export const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 // ponytail: tiny regex highlighter (keywords, strings, comments, numbers). Swap for Shiki if it ever matters.
@@ -25,9 +26,15 @@ export const list = xs => `<ul>${xs.map(x => `<li>${esc(x)}</li>`).join("")}</ul
 const rows = xs => `<table>${xs.map(([a, b]) => `<tr><td>${esc(a)}</td><td>${esc(b)}</td></tr>`).join("")}</table>`;
 const anim = slug => `<div class="anim" data-anim="${slug}"></div>`;
 const sub = text => `<h2 class="sub">${text}</h2>`;
+// plain-word story + everyday examples, shown before the technical text
+const storyBlock = slug => {
+  const s = stories[slug];
+  return `<div class="story">${sub("In plain words")}${s.story.map(x => `<p>${esc(x)}</p>`).join("")}${sub("Examples")}${list(s.examples)}</div>`;
+};
 
 const conceptBody = (pg, m) => `
   <p class="what">${esc(m.what)}</p>
+  ${storyBlock(pg.slug)}
   ${sub("How it works")}<p>${esc(m.how)}</p>
   ${anim(pg.slug)}
   <table>${m.ops.map(([o, c]) => `<tr><td>${esc(o)}</td><td><code>${esc(c)}</code></td></tr>`).join("")}</table>
@@ -40,6 +47,7 @@ const conceptBody = (pg, m) => `
 const problemBody = (pg, m) => `
   <div class="crumb">#${m.n} · <span class="d-${m.diff}">${m.diff}</span> · <a href="https://leetcode.com/problems/${lcSlug(m.title)}/" target="_blank" rel="noopener">LeetCode</a></div>
   <p>${esc(m.prompt)}</p>
+  ${storyBlock(pg.slug)}
   <pre class="ex">${m.examples.map(esc).join("\n")}</pre>
   ${sub("Ask before coding")}${list(m.clarify)}
   <details class="hint"><summary>Hint</summary><p>${esc(m.hint)}</p></details>
@@ -52,6 +60,7 @@ const problemBody = (pg, m) => `
 // design problems: prompt first, the worked answer hidden step by step so you can try it yourself
 const designProblemBody = (pg, m) => `
   <p class="what">${esc(m.prompt)}</p>
+  ${storyBlock(pg.slug)}
   <div class="ask">${sub("Ask first")}${list(m.clarify)}</div>
   <details><summary>Numbers</summary>${rows(m.numbers)}</details>
   <details><summary>API</summary><pre class="plain">${esc(m.api)}</pre></details>

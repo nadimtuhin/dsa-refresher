@@ -5,7 +5,36 @@ export const startPages = ({ nCon, nPro, nDes, pass, hl }) => ({
   <p><b>Part 1, Concepts:</b> how each structure works inside, what it costs, when to reach for it, and where it shows up in production. Read "How it works", then explain it out loud before opening the code.</p>
   <p><b>Part 2, Problems:</b> easy and easy-medium problems grouped by pattern. Read the prompt, say the clarifying questions, try it yourself first, then open the hint, the approach, and the solution in that order. Redo the ones you peeked at the next day, from a blank file.</p>
   <p><b>Part 3, System design:</b> the building blocks (caching, sharding, idempotency, outbox, retries) with tested code, then classic design prompts worked through the same 8 steps. Read the prompt, talk through your own answer, then compare.</p>
+  <p><b>New to the words?</b> Start with <a href="words">Words in plain English</a>. Every topic page also opens with a short story and everyday examples before the technical part.</p>
   <p class="lead">Use the arrow keys, or the Previous and Next links at the bottom of each page, to move through the book.</p>`,
+  words: `<h2>Words in plain English</h2>
+  <p class="lead">Interview words that sound harder than they are. Each one with a picture you can keep in your head.</p>
+  <table>
+    <tr><td>Pointer</td><td>Just a number saying "which position I'm looking at", like a finger on a line of text. "Two pointers" means two fingers, for example one at the start and one at the end, walking toward each other. In a linked list, a pointer is "who is next in line", like each person holding the shoulder of the person in front.</td></tr>
+    <tr><td>O(1)</td><td>Same speed no matter how big. Looking up a room number on the hotel board: 50 rooms or 50,000, one look.</td></tr>
+    <tr><td>O(n)</td><td>Look at everything once. Reading every name on a list of 1,000 takes 1,000 looks.</td></tr>
+    <tr><td>O(log n)</td><td>Throw away half each step, like the "higher or lower" number guessing game. 1,000 items take about 10 steps, 1 million about 20, 1 billion about 30.</td></tr>
+    <tr><td>O(n log n)</td><td>Good sorting. 1 million items, about 20 million steps: fast enough.</td></tr>
+    <tr><td>O(n²)</td><td>Compare everything with everything. 1,000 people all shaking hands is about 1 million handshakes. 1 million people: far too slow.</td></tr>
+    <tr><td>Hash map</td><td>A lookup board: give a name, get the value in one step. In JavaScript: new Map().</td></tr>
+    <tr><td>Set</td><td>A guest list: only answers "is this name on it?". In JavaScript: new Set().</td></tr>
+    <tr><td>Stack</td><td>A pile of plates: you add and take from the top only.</td></tr>
+    <tr><td>Queue</td><td>A bank line: join at the back, served from the front.</td></tr>
+    <tr><td>Recursion</td><td>A function that asks a smaller copy of itself. "How deep is this family tree?" equals 1 plus "how deep is my deepest child's tree?".</td></tr>
+    <tr><td>Sliding window</td><td>A frame you slide along a list: grow it on the right, shrink it on the left, never go back.</td></tr>
+    <tr><td>In place</td><td>Rearrange inside the same list, without making a copy.</td></tr>
+    <tr><td>Memo / dynamic programming</td><td>Write each answer in a notebook the first time, so you never work it out twice.</td></tr>
+    <tr><td>Latency</td><td>How long one request takes. Throughput: how many requests per second.</td></tr>
+    <tr><td>Cache</td><td>A whiteboard of recent answers kept close, so you don't ask the slow place again.</td></tr>
+    <tr><td>Replica</td><td>A copy of the data on another machine, so one machine dying loses nothing.</td></tr>
+    <tr><td>Shard</td><td>Splitting data across machines, like A to M in one cabinet and N to Z in another.</td></tr>
+    <tr><td>Idempotent</td><td>Doing it twice has the same result as doing it once. Pressing a lift button again doesn't call two lifts.</td></tr>
+    <tr><td>Queue (in system design)</td><td>A to-do list between services: one side drops jobs in, workers take them out when free.</td></tr>
+    <tr><td>Log (in system design)</td><td>Not a debug log: an append-only list of events in order, like a bank statement. Kafka is one.</td></tr>
+    <tr><td>Race condition</td><td>Two people grab the last seat at the same moment, and both think they got it.</td></tr>
+  </table>
+  <h4>How to read any page in this book</h4>
+  <ul><li>Read "In plain words" first: the story is the whole idea.</li><li>Then look at the examples and match each one to the story.</li><li>Only then read "How it works", and watch the animation step by step.</li><li>Close the page and tell the story out loud in your own words. If you can, you know it.</li></ul>`,
   pick: `<h2>Pick a structure from what you need</h2>
   <table>
     <tr><th>I need</th><th>Use</th><th>Cost</th></tr>

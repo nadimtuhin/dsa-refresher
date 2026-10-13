@@ -163,3 +163,8 @@ details.watch{border-color:var(--ink)}details.watch .anim{border:0;padding:4px 0
 .ask h2.sub{margin-top:4px}
 pre.plain{white-space:pre-wrap;word-break:break-word}
 @media (hover:hover){.pager a:hover,.donebox:hover{border-color:var(--ink)}}
+
+/* plain-word story at the top of each topic */
+.story{border-left:3px solid var(--accent);padding:2px 0 2px 14px;margin:14px 0 18px}
+.story p{margin:8px 0}
+.story h2.sub:first-child{margin-top:4px}

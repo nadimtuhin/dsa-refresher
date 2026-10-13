@@ -2,6 +2,8 @@
 
 A compact data structures, algorithms and system design refresher for interviews. A static book with one page per topic, built for phones first.
 
+Every topic starts with a short story and everyday examples in plain words; a "Words in plain English" page explains the jargon.
+
 - Part 1: 18 concepts. How each structure works, what it costs, when to use it, where it shows up in production.
 - Part 2: 27 easy and easy-medium problems grouped by pattern, with hints, approaches and traps.
 - Part 3: 14 system design topics. Building blocks (consistent hashing, caching, quorums, pagination, idempotency, outbox, retries and breakers) and worked design problems (URL shortener, rate limiter, webhooks, job dispatch, news feed, chat, an AI app builder like Lovable).

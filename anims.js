@@ -6,9 +6,15 @@ import * as P from "./problems.js";
 
 const cell = v => (v === Infinity ? "∞" : v == null ? "" : v === " " ? "·" : Array.isArray(v) ? v.join(",") : String(v));
 const show = v => (v === Infinity ? "∞" : v === undefined ? "undefined" : Array.isArray(v) ? "[" + v.map(show).join(", ") + "]" : typeof v === "string" ? `"${v}"` : String(v));
+// finger labels under array cells, in plain words (code names like lo/hi stay in the code, not on screen)
+const WORDS = { i: "here", j: "here", w: "write", r: "read", l: "left", lo: "low", hi: "high", mid: "middle", start: "start", head: "front" };
 const ptrs = o => {
   const r = {};
-  for (const [k, i] of Object.entries(o)) if (i != null && i >= 0) r[i] = r[i] ? r[i] + " " + k : k;
+  for (const [k, i] of Object.entries(o)) {
+    if (i == null || i < 0) continue;
+    const w = "↑" + (WORDS[k] ?? k);
+    r[i] = r[i] ? r[i] + " " + w : w;
+  }
   return r;
 };
 const range = (lo, hi, cls) => Object.fromEntries(Array.from({ length: Math.max(0, hi - lo + 1) }, (_, k) => [lo + k, cls]));
@@ -325,14 +331,14 @@ export const anims = {
     let lo = 0, hi = a.length;
     const snap = (note, mid = -1) => f(note,
       A("sorted array", a, { ...range(0, lo - 1, "dim"), ...range(hi, a.length - 1, "dim"), ...(mid >= 0 ? { [mid]: "cur" } : {}) }, ptrs({ lo, mid: mid >= 0 ? mid : null, hi: hi < a.length ? hi : null })),
-      V({ lo, hi, x }));
-    snap(`lowerBound(${x}): the first index where a[i] >= ${x}. The search window is [lo, hi).`);
+      V({ low: lo, high: hi, "looking for": x }));
+    snap(`lowerBound(${x}): find the first spot holding ${x} or more. Two fingers, low and high, mark the part still possible.`);
     while (lo < hi) {
       const m = (lo + hi) >> 1;
       if (a[m] < x) { snap(`a[${m}] = ${a[m]} < ${x}, so the answer is right of mid: lo = ${m + 1}.`, m); lo = m + 1; }
       else { snap(`a[${m}] = ${a[m]} >= ${x}, so mid could be the answer: hi = ${m}.`, m); hi = m; }
     }
-    snap(`lo == hi == ${lo}: the first ${x} is at index ${lo}. Each step halved the window.`);
+    snap(`low and high met at index ${lo}: the first ${x} is there. Each step threw away half.`);
     return [lo, C.lowerBound(a, x)];
   },
 
@@ -543,9 +549,9 @@ export const anims = {
     const a = [1, 2, 3, 0, 0, 0], b = [2, 5, 6];
     let i = 2, j = 2, w = 5;
     const snap = (note, cur = -1) => f(note,
-      A("nums1", a, { ...range(w + 1, a.length - 1, "ok"), ...(cur >= 0 ? { [cur]: "cur" } : {}) }, ptrs({ i, w })),
-      A("nums2", b, range(j + 1, b.length - 1, "dim"), ptrs({ j })));
-    snap("Fill nums1 from the back, so nothing we still need gets overwritten.");
+      A("nums1", a, { ...range(w + 1, a.length - 1, "ok"), ...(cur >= 0 ? { [cur]: "cur" } : {}) }, ptrs({ last: i, w })),
+      A("nums2", b, range(j + 1, b.length - 1, "dim"), ptrs({ last: j })));
+    snap("Fill nums1 from the back, so nothing we still need gets overwritten. last marks the biggest unused number in each list; write marks the slot to fill.");
     while (j >= 0) {
       const fromA = i >= 0 && a[i] > b[j], val = fromA ? a[i] : b[j];
       if (fromA) a[w--] = a[i--];
@@ -561,13 +567,13 @@ export const anims = {
   "p-move-zeroes": f => {
     const a = [0, 1, 0, 3, 12];
     let w = 0;
-    f("w is where the next non-zero goes.", A("nums", a, {}, ptrs({ w, r: 0 })));
+    f("Two fingers. read walks every slot. write marks where the next non-zero number goes.", A("nums", a, {}, ptrs({ w, r: 0 })));
     for (let r = 0; r < a.length; r++) {
       if (a[r] !== 0) {
         [a[w], a[r]] = [a[r], a[w]];
         w++;
-        f(`${a[w - 1]} is non-zero: swap it into slot ${w - 1}. w moves on.`, A("nums", a, { ...range(0, w - 1, "ok"), [r]: "cur" }, ptrs({ w, r })));
-      } else f(`nums[${r}] is 0. Skip it.`, A("nums", a, { ...range(0, w - 1, "ok"), [r]: "dim" }, ptrs({ w, r })));
+        f(`read found ${a[w - 1]} (not zero): swap it into slot ${w - 1}, then write moves to slot ${w}.`, A("nums", a, { ...range(0, w - 1, "ok"), [r]: "cur" }, ptrs({ w, r })));
+      } else f(`read is on slot ${r}, which holds 0. Skip it; write stays on slot ${w}.`, A("nums", a, { ...range(0, w - 1, "ok"), [r]: "dim" }, ptrs({ w, r })));
     }
     const x = [0, 1, 0, 3, 12];
     P.moveZeroes(x);
@@ -577,10 +583,10 @@ export const anims = {
   "p-remove-duplicates": f => {
     const a = [0, 0, 1, 1, 1, 2, 2, 3, 3, 4];
     let w = 1;
-    f("Sorted, so duplicates sit next to each other. Keep the first value. w = 1.", A("nums", a, { 0: "ok" }, ptrs({ w })));
+    f("Sorted, so duplicates sit next to each other. Keep the first value. write marks the next slot to fill; read walks the list.", A("nums", a, { 0: "ok" }, ptrs({ w })));
     for (let r = 1; r < a.length; r++) {
-      if (a[r] !== a[w - 1]) { a[w++] = a[r]; f(`${a[r]} differs from the last kept value. Write it at index ${w - 1}.`, A("nums", a, { ...range(0, w - 1, "ok"), [r]: "cur" }, ptrs({ w, r }))); }
-      else f(`${a[r]} equals the last kept value. Skip.`, A("nums", a, { ...range(0, w - 1, "ok"), [r]: "dim" }, ptrs({ w, r })));
+      if (a[r] !== a[w - 1]) { a[w++] = a[r]; f(`read found ${a[r]}, different from the last kept value. Copy it to slot ${w - 1}; write moves on.`, A("nums", a, { ...range(0, w - 1, "ok"), [r]: "cur" }, ptrs({ w, r }))); }
+      else f(`read found ${a[r]}, same as the last kept value. Skip it.`, A("nums", a, { ...range(0, w - 1, "ok"), [r]: "dim" }, ptrs({ w, r })));
     }
     f(`k = ${w}. The first ${w} slots hold the answer.`, A("nums", a, range(0, w - 1, "ok")));
     const x = [0, 0, 1, 1, 1, 2, 2, 3, 3, 4], k = P.removeDuplicates(x);
@@ -647,7 +653,7 @@ export const anims = {
     const a = [-1, 0, 3, 5, 9, 12], x = 9;
     let lo = 0, hi = a.length - 1, res = -1;
     const snap = (note, m = -1, cls = "cur") => f(note,
-      A("nums", a, { ...range(0, lo - 1, "dim"), ...range(hi + 1, a.length - 1, "dim"), ...(m >= 0 ? { [m]: cls } : {}) }, ptrs({ lo, mid: m >= 0 ? m : null, hi })), V({ lo, hi, target: x }));
+      A("nums", a, { ...range(0, lo - 1, "dim"), ...range(hi + 1, a.length - 1, "dim"), ...(m >= 0 ? { [m]: cls } : {}) }, ptrs({ lo, mid: m >= 0 ? m : null, hi })), V({ low: lo, high: hi, target: x }));
     snap(`Find ${x}. The window is the whole array.`);
     while (lo <= hi) {
       const m = lo + Math.floor((hi - lo) / 2);
@@ -661,14 +667,14 @@ export const anims = {
   "p-search-insert": f => {
     const a = [1, 3, 5, 6], x = 2;
     let lo = 0, hi = a.length;
-    const snap = (note, m = -1) => f(note, A("nums", a, { ...range(0, lo - 1, "dim"), ...range(hi, a.length - 1, "dim"), ...(m >= 0 ? { [m]: "cur" } : {}) }, ptrs({ lo, mid: m >= 0 ? m : null, hi: hi < a.length ? hi : null })), V({ lo, hi, target: x }));
-    snap(`Find the first index where nums[i] >= ${x}. Window [lo, hi).`);
+    const snap = (note, m = -1) => f(note, A("nums", a, { ...range(0, lo - 1, "dim"), ...range(hi, a.length - 1, "dim"), ...(m >= 0 ? { [m]: "cur" } : {}) }, ptrs({ lo, mid: m >= 0 ? m : null, hi: hi < a.length ? hi : null })), V({ low: lo, high: hi, target: x }));
+    snap(`Find the first spot holding ${x} or more. Two fingers, low and high, mark the part still possible.`);
     while (lo < hi) {
       const m = (lo + hi) >> 1;
       if (a[m] < x) { snap(`nums[${m}] = ${a[m]} < ${x}: the answer is right of mid. lo = ${m + 1}.`, m); lo = m + 1; }
       else { snap(`nums[${m}] = ${a[m]} >= ${x}: mid could be the answer. hi = ${m}.`, m); hi = m; }
     }
-    snap(`lo == hi == ${lo}. Insert ${x} at index ${lo}.`);
+    snap(`low and high met at index ${lo}. Insert ${x} there.`);
     return [lo, P.searchInsert(a, x)];
   },
 
