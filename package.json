@@ -6,7 +6,8 @@
     "dev": "astro dev",
     "check": "node check.js",
     "build": "node check.js && astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "og": "node og.js"
   },
   "dependencies": {
     "astro": "7.3.8"

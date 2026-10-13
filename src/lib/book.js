@@ -2,7 +2,7 @@
 import { runChecks, summary } from "../../check.js";
 import { parts, pages } from "./pages.js";
 import { buildBodies } from "./bodies.js";
-import { seoTitle } from "./seo.js";
+import { seoTitle, metaDescription } from "./seo.js";
 
 const checks = await runChecks();
 if (checks.errors.length) {
@@ -22,6 +22,7 @@ buildBodies(pages, { nCon: count("c"), nPro: count("p"), nDes: count("d"), pass:
 
 pages.forEach((pg, i) => {
   pg.seoTitle = seoTitle(pg);
+  pg.description = metaDescription(pg);
   pg.prev = pages[i - 1];
   pg.next = pages[i + 1];
 });

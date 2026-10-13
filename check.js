@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 // node check.js -> runs every test and replays every animation. Exit 1 on any failure.
 // Runs as `prebuild`, and again inside the Astro build so the gate cannot be skipped.
 import { pathToFileURL } from "node:url";
@@ -37,6 +38,7 @@ export async function runChecks() {
     if (pg.tracked && !(s && s.story.length >= 1 && s.examples.length >= 3)) errors.push(`STORY ${pg.slug}: needs a story and at least 3 examples`);
   }
   for (const k of Object.keys(stories)) if (!pages.some(pg => pg.slug === k)) errors.push(`STORY ${k}: no such page`);
+  for (const pg of pages) if (!existsSync(`public/og/${pg.slug}.png`)) errors.push(`OG ${pg.slug}: missing share image, run npm run og`);
 
   const nFrames = Object.values(frames).reduce((s, f) => s + f.length, 0);
   return { pass, errors, frames, nAnims: Object.keys(frames).length, nFrames };

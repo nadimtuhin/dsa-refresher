@@ -1,6 +1,6 @@
 ---
 import { parts, pages, frames, nTracked, hrefOf, BUILD_DATE, firstOfPart } from "../lib/book.js";
-import { SITE, BOOK_NAME, urlOf, jsonLd } from "../lib/seo.js";
+import { SITE, BOOK_NAME, urlOf, jsonLd, ogImage } from "../lib/seo.js";
 
 const { pg } = Astro.props;
 const { prev, next } = pg;
@@ -30,11 +30,18 @@ const ld = safeJson(jsonLd(pg, { buildDate: BUILD_DATE, firstOfPart }));
 <meta property="og:description" content={pg.description}>
 <meta property="og:url" content={url}>
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content={ogImage(pg)}>
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content={pg.title}>
 <meta property="article:author" content="https://github.com/nadimtuhin">
 <meta property="article:modified_time" content={BUILD_DATE}>
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content={pg.seoTitle}>
 <meta name="twitter:description" content={pg.description}>
+<meta name="twitter:image" content={ogImage(pg)}>
+<meta name="twitter:image:alt" content={pg.title}>
 <link rel="stylesheet" href="/site.css">
 <script type="application/ld+json" set:html={ld}></script>
 </head>

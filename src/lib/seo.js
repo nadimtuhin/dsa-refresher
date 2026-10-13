@@ -12,8 +12,45 @@ export const seoTitle = pg => {
   if (pg.slug === "index") return "DSA and system design refresher: tested JavaScript, animated";
   const label = { start: pg.title, c: `${pg.title}: how it works`, p: `${pg.title}: solution and complexity` }[pg.part.key]
     ?? (pg.meta.how ? `${pg.title}: how it works` : `${pg.title}: system design`);
-  return `${label} · ${BOOK_NAME}`;
+  // search results cut titles near 60 chars: drop the book name, then the label, when long
+  const full = `${label} · ${BOOK_NAME}`;
+  return full.length <= 65 ? full : label.length <= 65 ? label : pg.title;
 };
+
+// keep whole sentences that fit; if even the first doesn't, cut at a word and add "..."
+const clip = (s, max) => {
+  if (s.length <= max) return s;
+  let out = "";
+  for (const sent of s.match(/[^.!?]+[.!?]+(\s|$)/g) ?? []) {
+    if ((out + sent).trim().length > max) break;
+    out += sent;
+  }
+  if (out.trim()) return out.trim();
+  return s.slice(0, s.lastIndexOf(" ", max - 4)).replace(/[,.;:]$/, "") + "...";
+};
+
+// at most 160 chars: the direct answer first, then what the page gives you
+export const metaDescription = pg => {
+  const m = pg.meta;
+  if (!m) return clip(pg.description, 160);
+  if (m.seo) return m.seo; // hand written when the first sentence is too long
+  const tail = {
+    p: `Tested JavaScript, ${m.time} time, ${m.space} space, animated.`,
+    c: "Plain words, examples, tested JavaScript, animation."
+  }[pg.part.key] ?? "Plain words, real examples, tested model, animation.";
+  const head = clip(pg.description, 160 - tail.length - 1);
+  // a whole first sentence beats a cut one plus the tail
+  return head.endsWith("...") ? clip(pg.description, 160) : `${head} ${tail}`;
+};
+
+// what the share card shows under the title
+export const ogSubtitle = pg => {
+  const m = pg.meta;
+  if (!m) return pg.description;
+  if (pg.part.key === "p") return `${m.diff} · ${m.time} time · ${m.space} space · tested JavaScript + animation`;
+  return m.seo ?? m.what ?? m.prompt;
+};
+export const ogImage = pg => `${SITE}/og/${pg.slug}.png`;
 
 const ul = xs => `<ul>${xs.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`;
 
@@ -49,6 +86,7 @@ export const jsonLd = (pg, { buildDate, firstOfPart }) => {
       "@type": "TechArticle",
       headline: pg.title,
       description: pg.description,
+      image: ogImage(pg),
       url,
       mainEntityOfPage: url,
       author: AUTHOR,

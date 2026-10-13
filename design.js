@@ -1138,6 +1138,7 @@ export const meta = {
   },
   "app-builder": {
     title: "AI app builder like Lovable",
+    seo: "System design for an AI app builder like Lovable: prompt to working app, small checked code edits, a build gate, saved versions and warm preview sandboxes.",
     prompt: "A user describes an app in plain words (\"a booking site for my salon\") and gets a working web app: generated code, a live preview that updates as the AI edits, chat to change it, undo, and one click deploy.",
     clarify: [
       "One fixed stack, or any stack the user asks for?",
