@@ -90,7 +90,7 @@
       <div class="ctl"><button type="button" data-a="first" aria-label="First step">⏮</button><button type="button" data-a="prev" aria-label="Previous step">◀</button>
       <button type="button" data-a="play" class="play">Play</button><button type="button" data-a="next" aria-label="Next step">▶</button>
       <input type="range" min="0" max="${fr.length - 1}" value="0" aria-label="Step"><span class="cnt"></span>
-      <select aria-label="Speed"><option value="1400">slow</option><option value="800" selected>normal</option><option value="350">fast</option></select></div>`;
+      <select aria-label="Speed"><option value="1400" selected>slow</option><option value="800">normal</option><option value="350">fast</option></select></div>`;
     const stage = el.querySelector(".stage"), note = el.querySelector(".note"), range = el.querySelector("input"), cnt = el.querySelector(".cnt"), play = el.querySelector(".play"), speed = el.querySelector("select");
     const draw = () => { const f = fr[i]; stage.innerHTML = f.views.map(view).join(""); note.textContent = f.note; range.value = i; cnt.textContent = `${i + 1} / ${fr.length}`; };
     const stop = () => { clearInterval(timer); timer = null; play.textContent = "Play"; };
