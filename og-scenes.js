@@ -4,6 +4,7 @@ export const scenes = {
   index: "an open notebook with simple diagrams of boxes, arrows and a small tree, next to a coffee cup",
   words: "a dictionary page with simple icons beside each entry: a pointing finger, a stack of plates, a queue of people",
   pick: "a toolbox with neatly sorted tools, one red tool lifted out",
+  about: "an open notebook with a pencil and a small red checkmark stamp beside a stack of books",
   logn: "from left to right, a big pile of cards, then a pile half that size, then half again, then half again, ending in one single red card; arrows point left to right, each pile clearly smaller than the last",
   bigo: "four race lanes with a snail, a walker, a bicycle and a rocket",
   compare: "three containers side by side: a row of lockers, a chain of linked boxes, a wall of labelled pigeonholes",

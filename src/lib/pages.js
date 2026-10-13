@@ -7,7 +7,7 @@ import * as D2 from "../../design2.js";
 const D = { meta: { ...D1.meta, ...D2.meta }, tests: { ...D1.tests, ...D2.tests }, chapters: [...D1.chapters, ...D2.chapters] };
 
 export const parts = [
-  { key: "start", title: "Start", chapters: [{ title: "", ids: ["start", "words", "pick", "logn", "bigo", "compare", "method", "sdmethod", "js"] }] },
+  { key: "start", title: "Start", chapters: [{ title: "", ids: ["start", "words", "pick", "logn", "bigo", "compare", "method", "sdmethod", "js", "about"] }] },
   { key: "c", title: "Part 1 · Concepts", src: C, chapters: C.chapters },
   { key: "p", title: "Part 2 · Problems", src: P, chapters: P.chapters },
   { key: "d", title: "Part 3 · System design", src: D, chapters: D.chapters }
@@ -21,6 +21,7 @@ export const startPageInfo = {
   bigo: ["Complexity classes", "Big O classes from constant to exponential, what each feels like at a million items, and the terms amortized, average case and stable sort."],
   compare: ["Array vs list vs map", "Array, linked list and hash map compared by the cost of access, search, insert and delete."],
   method: ["Coding: the 6 step method", "A six step routine for solving a coding problem out loud, and which pattern to try for each kind of input."],
+  about: ["About and contact", "Who wrote this interview study book, how every answer is tested before publishing, and how to report a mistake or get in touch."],
   sdmethod: ["System design: the 8 steps", "Eight steps for a system design round, the latency and throughput numbers worth knowing, and phrases that help."],
   js: ["JavaScript cheat sheet", "Short JavaScript reference for Map, Set, arrays, strings and sorting, with three common mistakes."]
 };

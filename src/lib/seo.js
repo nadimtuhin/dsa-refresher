@@ -3,7 +3,7 @@ import { esc } from "./bodies.js";
 
 export const SITE = "https://prep.nadimtuhin.com";
 export const BOOK_NAME = "DSA refresher";
-export const AUTHOR = {
+const PERSON = {
   "@type": "Person",
   "@id": "https://prep.nadimtuhin.com/#author",
   name: "Nadim Tuhin",
@@ -11,6 +11,18 @@ export const AUTHOR = {
   url: "https://nadimtuhin.com",
   sameAs: ["https://github.com/nadimtuhin", "https://www.linkedin.com/in/nadimtuhin/", "https://twitter.com/nadimtuhin"]
 };
+const PUBLISHER = {
+  "@type": "Organization",
+  "@id": "https://prep.nadimtuhin.com/#publisher",
+  name: "DSA refresher",
+  url: "https://prep.nadimtuhin.com/",
+  logo: "https://prep.nadimtuhin.com/icon-512.png",
+  founder: { "@id": PERSON["@id"] },
+  sameAs: ["https://github.com/nadimtuhin/dsa-refresher"]
+};
+// nodes reference these by @id; the full objects sit once at the top of the graph, where crawlers look
+export const AUTHOR = { "@id": PERSON["@id"] };
+const PUB = { "@id": PUBLISHER["@id"] };
 export const PUBLISHED = "2026-10-12"; // first commit of the book
 
 export const urlOf = pg => `${SITE}/${pg.slug === "index" ? "" : pg.slug}`;
@@ -104,12 +116,15 @@ export const jsonLd = (pg, { buildDate, firstOfPart }) => {
       url,
       mainEntityOfPage: url,
       author: AUTHOR,
+      publisher: PUB,
       datePublished: PUBLISHED,
       dateModified: buildDate,
       inLanguage: "en",
       isPartOf: { "@type": "Book", name: BOOK_NAME, url: SITE + "/", author: AUTHOR }
     },
-    { "@type": "WebSite", "@id": SITE + "/#site", name: BOOK_NAME, url: SITE + "/", inLanguage: "en", author: AUTHOR, publisher: AUTHOR },
+    PERSON,
+    PUBLISHER,
+    { "@type": "WebSite", "@id": SITE + "/#site", name: BOOK_NAME, url: SITE + "/", inLanguage: "en", author: AUTHOR, publisher: PUB },
     {
       "@type": "BreadcrumbList",
       itemListElement: crumbs.map(([name, item], i) => ({ "@type": "ListItem", position: i + 1, name, item }))

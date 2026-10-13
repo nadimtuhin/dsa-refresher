@@ -22,6 +22,14 @@ export const startPages = ({ nCon, nPro, nDes, pass, hl, hrefs }) => ({
   <p>Study notes with wrong answers are worse than none. Each solution runs against its test cases on every build, and each animation must end on the same answer the tested code gives. If anything fails, the site isn't published.</p>
   <h2>Who is it for?</h2>
   <p>Engineers getting ready for coding and system design interviews who want plain explanations, with a short story and everyday examples before the technical part. Use the arrow keys, or the Previous and Next links at the bottom of each page, to move through the book.</p>`,
+  about: `<h2>About this book</h2>
+  <p class="lead">A free study book for coding and system design interviews, written and maintained by Nadim Tuhin.</p>
+  <h4>Who wrote it?</h4>
+  <p>Nadim Tuhin is a senior software engineer and tech lead with 14 years of experience building distributed systems, automation platforms and healthcare workflows in TypeScript, Node.js, Go, Python and PostgreSQL. Profiles: <a href="https://nadimtuhin.com" rel="author">nadimtuhin.com</a>, <a href="https://github.com/nadimtuhin">GitHub</a>, <a href="https://www.linkedin.com/in/nadimtuhin/">LinkedIn</a>.</p>
+  <h4>How is it checked?</h4>
+  <p>Every solution runs against its test cases on every build, and every animation must end on the answer the tested code gives. If one check fails, the site is not published. The source and tests are public at <a href="https://github.com/nadimtuhin/dsa-refresher">github.com/nadimtuhin/dsa-refresher</a>.</p>
+  <h4 id="contact">How do I contact you?</h4>
+  <p>Found a mistake or want a topic added? <a href="https://github.com/nadimtuhin/dsa-refresher/issues">Open an issue on GitHub</a>, or book a short call at <a href="https://calendly.com/nadimtuhin/30min">calendly.com/nadimtuhin/30min</a>.</p>`,
   words: `<h2>Words in plain English</h2>
   <p class="lead">Interview words that sound harder than they are. Each one with a picture you can keep in your head.</p>
   <table>
