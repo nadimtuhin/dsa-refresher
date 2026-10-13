@@ -1,12 +1,27 @@
 // Start pages: plain reading, no tests. Template literals; ctx supplies counts and the highlighter.
-export const startPages = ({ nCon, nPro, nDes, pass, hl }) => ({
+export const startPages = ({ nCon, nPro, nDes, pass, hl, hrefs }) => ({
   start: `<h1>Data structures, algorithms and system design, refreshed</h1>
-  <p class="lead">${nCon} concepts, ${nPro} interview problems and ${nDes} system design topics. Every implementation and solution is plain JavaScript with a step-by-step animation, and all ${pass} tests pass before the site is built. One topic per page; tick it done at the bottom and your progress is saved in this browser.</p>
-  <p><b>Part 1, Concepts:</b> how each structure works inside, what it costs, when to reach for it, and where it shows up in production. Read "How it works", then explain it out loud before opening the code.</p>
-  <p><b>Part 2, Problems:</b> easy and easy-medium problems grouped by pattern. Read the prompt, say the clarifying questions, try it yourself first, then open the hint, the approach, and the solution in that order. Redo the ones you peeked at the next day, from a blank file.</p>
-  <p><b>Part 3, System design:</b> the building blocks (caching, sharding, idempotency, outbox, retries) with tested code, then classic design prompts worked through the same 8 steps. Read the prompt, talk through your own answer, then compare.</p>
-  <p><b>New to the words?</b> Start with <a href="words">Words in plain English</a>. Every topic page also opens with a short story and everyday examples before the technical part.</p>
-  <p class="lead">Use the arrow keys, or the Previous and Next links at the bottom of each page, to move through the book.</p>`,
+  <p class="lead">A free study book for coding interviews: ${nCon} concepts, ${nPro} interview problems and ${nDes} system design topics. Every implementation and solution is plain JavaScript with a step by step animation, and all ${pass} tests pass before the site is built.</p>
+  <h2>What is in the book?</h2>
+  <table>
+    <tr><th>Part</th><th>Topics</th><th>What you get on each page</th></tr>
+    <tr><td><a href="${hrefs.c}">1. Concepts</a></td><td>${nCon}</td><td>How the structure works inside, what each operation costs, when to use it, tested code, an animation.</td></tr>
+    <tr><td><a href="${hrefs.p}">2. Problems</a></td><td>${nPro}</td><td>Easy and easy medium problems grouped by pattern: questions to ask, a hint, the approach, time and space, a tested solution, an animation.</td></tr>
+    <tr><td><a href="${hrefs.d}">3. System design</a></td><td>${nDes}</td><td>Building blocks (caching, sharding, idempotency, outbox, retries) and full designs (ride sharing, Twitter, ChatGPT and more) in the standard 8 step order.</td></tr>
+  </table>
+  <h2>How should you use it?</h2>
+  <ol>
+    <li>New to the words? Read <a href="words">Words in plain English</a> and <a href="logn">What log n means</a> first.</li>
+    <li>For a concept: read "How does it work?", then explain it out loud before looking at the code.</li>
+    <li>For a problem: read the prompt, say your questions, try it yourself, then read the hint, the approach and the solution in that order.</li>
+    <li>For a design: talk through your own answer first, then compare with the 8 steps on the page.</li>
+    <li>Tick the topic done at the bottom. Your progress is saved in this browser.</li>
+    <li>Redo any problem you peeked at the next day, from a blank file.</li>
+  </ol>
+  <h2>Why is every answer tested?</h2>
+  <p>Study notes with wrong answers are worse than none. Each solution runs against its test cases on every build, and each animation must end on the same answer the tested code gives. If anything fails, the site isn't published.</p>
+  <h2>Who is it for?</h2>
+  <p>Engineers getting ready for coding and system design interviews who want plain explanations, with a short story and everyday examples before the technical part. Use the arrow keys, or the Previous and Next links at the bottom of each page, to move through the book.</p>`,
   words: `<h2>Words in plain English</h2>
   <p class="lead">Interview words that sound harder than they are. Each one with a picture you can keep in your head.</p>
   <table>

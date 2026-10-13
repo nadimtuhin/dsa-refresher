@@ -3,7 +3,14 @@ import { esc } from "./bodies.js";
 
 export const SITE = "https://prep.nadimtuhin.com";
 export const BOOK_NAME = "DSA refresher";
-export const AUTHOR = { "@type": "Person", name: "Nadim Tuhin", url: "https://github.com/nadimtuhin" };
+export const AUTHOR = {
+  "@type": "Person",
+  "@id": "https://prep.nadimtuhin.com/#author",
+  name: "Nadim Tuhin",
+  jobTitle: "Senior Software Engineer",
+  url: "https://nadimtuhin.com",
+  sameAs: ["https://github.com/nadimtuhin", "https://www.linkedin.com/in/nadimtuhin/", "https://twitter.com/nadimtuhin"]
+};
 export const PUBLISHED = "2026-10-12"; // first commit of the book
 
 export const urlOf = pg => `${SITE}/${pg.slug === "index" ? "" : pg.slug}`;
@@ -57,6 +64,13 @@ const ul = xs => `<ul>${xs.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`;
 // [question, answer as HTML] pairs, each backed by text shown on the page
 export const faqOf = pg => {
   const m = pg.meta;
+  // same questions as the visible h2s on the home page
+  if (pg.slug === "index")
+    return [
+      ["What is in the book?", "Concepts, interview problems and system design topics, each with tested JavaScript and a step by step animation."],
+      ["Why is every answer tested?", "Each solution runs against its test cases on every build, and each animation must end on the tested answer. If anything fails, the site isn't published."],
+      ["Who is it for?", "Engineers getting ready for coding and system design interviews who want plain explanations with stories and everyday examples."]
+    ];
   if (!m) return [];
   if (pg.part.key === "p")
     return [
@@ -95,6 +109,7 @@ export const jsonLd = (pg, { buildDate, firstOfPart }) => {
       inLanguage: "en",
       isPartOf: { "@type": "Book", name: BOOK_NAME, url: SITE + "/", author: AUTHOR }
     },
+    { "@type": "WebSite", "@id": SITE + "/#site", name: BOOK_NAME, url: SITE + "/", inLanguage: "en", author: AUTHOR, publisher: AUTHOR },
     {
       "@type": "BreadcrumbList",
       itemListElement: crumbs.map(([name, item], i) => ({ "@type": "ListItem", position: i + 1, name, item }))

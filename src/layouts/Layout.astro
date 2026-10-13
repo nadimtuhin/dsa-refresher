@@ -83,7 +83,7 @@ const ld = safeJson(jsonLd(pg, { buildDate: BUILD_DATE, firstOfPart }));
     {next && <a class="nx" href={hrefOf(next)} rel="next"><small>Next →</small><span>{next.title}</span></a>}
   </nav>
 </article>
-<footer>Built by <a href="https://github.com/nadimtuhin">Nadim Tuhin</a> · source and tests: <a href="https://github.com/nadimtuhin/dsa-refresher">github.com/nadimtuhin/dsa-refresher</a> · <time datetime={BUILD_DATE}>Updated {BUILD_DATE}</time></footer>
+<footer><a href="https://nadimtuhin.com" rel="author">About the author</a> · <a href="https://github.com/nadimtuhin/dsa-refresher/issues">Contact: report a mistake</a> · Built by <a href="https://github.com/nadimtuhin">Nadim Tuhin</a> · source and tests: <a href="https://github.com/nadimtuhin/dsa-refresher">github.com/nadimtuhin/dsa-refresher</a> · <time datetime={BUILD_DATE}>Updated {BUILD_DATE}</time></footer>
 </main>
 {pageFrames && <script is:inline set:html={`window.FRAMES = ${safeJson(pageFrames)};`}></script>}
 {pageFrames && <script is:inline src="/player.js" defer></script>}

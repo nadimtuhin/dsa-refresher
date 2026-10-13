@@ -39,27 +39,27 @@ const storyBlock = slug => {
 const conceptBody = (pg, m) => `
   <p class="what">${esc(m.what)}</p>
   ${storyBlock(pg.slug)}
-  ${sub("How it works")}<p>${esc(m.how)}</p>
+  ${sub("How does it work?")}<p>${esc(m.how)}</p>
   ${anim(pg.slug)}
   <table>${m.ops.map(([o, c]) => `<tr><td>${esc(o)}</td><td><code>${esc(c)}</code></td></tr>`).join("")}</table>
-  ${sub("Reach for it when")}${list(m.when)}
+  ${sub("When should you use it?")}${list(m.when)}
   ${sub("Implementation (JavaScript, tested)")}${codeBlock(sourceOf(pg.part.key, pg.id))}
-  ${sub("Traps")}${list(m.traps)}
+  ${sub("What are the common traps?")}${list(m.traps)}
   <div class="real"><b>In real systems:</b> ${esc(m.real)}</div>
-  <div class="say"><b>Say out loud:</b> ${esc(m.say)}</div>`;
+  ${sub("Summary")}<div class="say"><b>Say out loud:</b> ${esc(m.say)}</div>`;
 
 const problemBody = (pg, m) => `
   <div class="crumb">#${m.n} · <span class="d-${m.diff}">${m.diff}</span> · <a href="https://leetcode.com/problems/${lcSlug(m.title)}/" target="_blank" rel="noopener">LeetCode</a></div>
   <p>${esc(m.prompt)}</p>
   ${storyBlock(pg.slug)}
   <pre class="ex">${m.examples.map(esc).join("\n")}</pre>
-  ${sub("Ask before coding")}${list(m.clarify)}
+  ${sub("What should you ask before coding?")}${list(m.clarify)}
   <p class="hint"><b>Hint:</b> ${esc(m.hint)}</p>
-  ${sub("Approach")}<p>${esc(m.idea)}</p><p class="cx"><b>Time</b> ${m.time} &nbsp; <b>Space</b> ${m.space}</p>
+  ${sub("How do you solve it?")}<p>${esc(m.idea)}</p>${rows([["Time", m.time], ["Space", m.space]])}
   ${sub("Watch it run")}${anim(pg.slug)}
   ${sub("Solution (JavaScript, tested)")}${codeBlock(sourceOf("p", pg.id))}
-  ${sub("Traps")}${list(m.traps)}
-  <div class="say"><b>Say out loud:</b> ${esc(m.say)}</div>`;
+  ${sub("What are the common traps?")}${list(m.traps)}
+  ${sub("Summary")}<div class="say"><b>Say out loud:</b> ${esc(m.say)}</div>`;
 
 // design problems: the standard interview order, every section visible, with an on-page contents list
 const flow = steps => `<ol class="flow">${steps.map(([box, note]) => `<li><b>${esc(box)}</b><span>${esc(note)}</span></li>`).join("")}</ol>`;
@@ -98,7 +98,8 @@ const asTitle = html => html.replace(/<h2>(.*?)<\/h2>/, '<h1 class="title">$1</h
 const asSub = html => html.replace(/<h4>(.*?)<\/h4>/g, (_m, t) => sub(t));
 
 export const buildBodies = (pages, ctx) => {
-  const starts = startPages({ ...ctx, hl });
+  const first = k => pages.find(p => p.part.key === k).slug;
+  const starts = startPages({ ...ctx, hl, hrefs: { c: first("c"), p: first("p"), d: first("d") } });
   const bodyOf = pg =>
     pg.part.key === "start" ? asSub(pg.slug === "index" ? starts[pg.id] : asTitle(starts[pg.id]))
     : pg.part.key === "c" ? conceptBody(pg, pg.meta)
