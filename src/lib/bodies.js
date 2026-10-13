@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { startPages } from "../../start.js";
 import { stories } from "../../stories.js";
+import { hld } from "../../design-hld.js";
 
 export const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 // ponytail: tiny regex highlighter (keywords, strings, comments, numbers). Swap for Shiki if it ever matters.
@@ -39,7 +40,7 @@ const conceptBody = (pg, m) => `
   ${anim(pg.slug)}
   <table>${m.ops.map(([o, c]) => `<tr><td>${esc(o)}</td><td><code>${esc(c)}</code></td></tr>`).join("")}</table>
   ${sub("Reach for it when")}${list(m.when)}
-  <details><summary>Implementation (JavaScript, tested)</summary>${codeBlock(sourceOf(pg.part.key, pg.id))}</details>
+  ${sub("Implementation (JavaScript, tested)")}${codeBlock(sourceOf(pg.part.key, pg.id))}
   ${sub("Traps")}${list(m.traps)}
   <div class="real"><b>In real systems:</b> ${esc(m.real)}</div>
   <div class="say"><b>Say out loud:</b> ${esc(m.say)}</div>`;
@@ -50,28 +51,43 @@ const problemBody = (pg, m) => `
   ${storyBlock(pg.slug)}
   <pre class="ex">${m.examples.map(esc).join("\n")}</pre>
   ${sub("Ask before coding")}${list(m.clarify)}
-  <details class="hint"><summary>Hint</summary><p>${esc(m.hint)}</p></details>
-  <details><summary>Approach</summary><p>${esc(m.idea)}</p><p class="cx"><b>Time</b> ${m.time} &nbsp; <b>Space</b> ${m.space}</p></details>
-  <details class="watch"><summary>Watch it run</summary>${anim(pg.slug)}</details>
-  <details><summary>Solution (JavaScript, tested)</summary>${codeBlock(sourceOf("p", pg.id))}</details>
+  <p class="hint"><b>Hint:</b> ${esc(m.hint)}</p>
+  ${sub("Approach")}<p>${esc(m.idea)}</p><p class="cx"><b>Time</b> ${m.time} &nbsp; <b>Space</b> ${m.space}</p>
+  ${sub("Watch it run")}${anim(pg.slug)}
+  ${sub("Solution (JavaScript, tested)")}${codeBlock(sourceOf("p", pg.id))}
   ${sub("Traps")}${list(m.traps)}
   <div class="say"><b>Say out loud:</b> ${esc(m.say)}</div>`;
 
-// design problems: prompt first, the worked answer hidden step by step so you can try it yourself
-const designProblemBody = (pg, m) => `
+// design problems: the standard interview order, every section visible, with an on-page contents list
+const flow = steps => `<ol class="flow">${steps.map(([box, note]) => `<li><b>${esc(box)}</b><span>${esc(note)}</span></li>`).join("")}</ol>`;
+const SD_STEPS = [["req", "Requirements"], ["est", "Estimates"], ["api", "API"], ["data", "Data model"], ["hld", "High level design"], ["deep", "Deep dives"], ["fail", "Failures"], ["trade", "Trade-offs"], ["wrap", "Wrap up"]];
+// numbered to match the 8 steps page; "Wrap up" is the closing line, not a step
+const step = id => { const i = SD_STEPS.findIndex(s => s[0] === id); return `<h2 class="sub" id="${id}">${id === "wrap" ? "" : `${i + 1}. `}${SD_STEPS[i][1]}</h2>`; };
+const designProblemBody = (pg, m) => {
+  const h = hld[pg.id];
+  return `
   <p class="what">${esc(m.prompt)}</p>
   ${storyBlock(pg.slug)}
-  <div class="ask">${sub("Ask first")}${list(m.clarify)}</div>
-  <details><summary>Numbers</summary>${rows(m.numbers)}</details>
-  <details><summary>API</summary><pre class="plain">${esc(m.api)}</pre></details>
-  <details><summary>Data</summary><pre class="plain">${esc(m.data)}</pre></details>
-  ${m.deep.map(([q, a], i) => `<details><summary>${i === 0 ? "Deep dive: " : ""}${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}
-  ${sub("See the core idea run")}
+  <nav class="toc" aria-label="On this page"><b>On this page</b><ol>${SD_STEPS.map(([id, t]) => `<li><a href="#${id}">${t}</a></li>`).join("")}</ol></nav>
+  ${step("req")}
+  <h3>Functional</h3>${list(h.fr)}
+  <h3>Non functional</h3>${list(h.nfr)}
+  <h3>Questions to ask</h3>${list(m.clarify)}
+  ${step("est")}${rows(m.numbers)}
+  ${step("api")}<pre class="plain">${esc(m.api)}</pre>
+  ${step("data")}<pre class="plain">${esc(m.data)}</pre>
+  ${step("hld")}<p>Follow one request at a time, top to bottom.</p>
+  ${Object.entries(h.paths).map(([name, s]) => `<h3>${esc(name)}</h3>${flow(s)}`).join("")}
+  ${step("deep")}
+  ${m.deep.map(([q, a]) => `<h3>${esc(q)}</h3><p>${esc(a)}</p>`).join("")}
+  <h3>See the core idea run</h3>
   ${anim(pg.slug)}
-  <details><summary>Core logic (JavaScript, tested)</summary>${codeBlock(sourceOf("d", pg.id))}</details>
-  <details><summary>Failures</summary>${rows(m.failures)}</details>
-  <details><summary>Trade-offs</summary>${list(m.tradeoffs)}</details>
+  <h3>Core logic (JavaScript, tested)</h3>${codeBlock(sourceOf("d", pg.id))}
+  ${step("fail")}${rows(m.failures)}
+  ${step("trade")}${list(m.tradeoffs)}
+  ${step("wrap")}
   <div class="say"><b>Say out loud:</b> ${esc(m.say)}</div>`;
+};
 
 // start pages come from start.js as HTML; their first h2 (or the h1 on the index) is the page title,
 // and the h4 sub headings become h2 so headings stay in order

@@ -95,7 +95,7 @@ export const startPages = ({ nCon, nPro, nDes, pass, hl }) => ({
   </table>
   <h4>How to spot it in code</h4>
   <ul><li>A loop where the size is divided by 2 (or any fixed number) each time: <code>while (n > 1) n = n / 2</code>.</li><li>A loop where something doubles until it reaches n: <code>for (let i = 1; i < n; i *= 2)</code>.</li><li>Recursion that goes into only ONE half each call (binary search). If it goes into BOTH halves and does n work to combine, that's n log n (merge sort).</li></ul>
-  <details><summary>The code behind the animations (JavaScript, tested)</summary><!--code:halvings--></details>
+  <h4>The code behind the animations (JavaScript, tested)</h4><!--code:halvings-->
   <h4>Things people get wrong</h4>
   <ul><li>The base doesn't matter in Big O: log₂ n and log₁₀ n differ only by a fixed factor (about 3.3), so everyone just writes log n.</li><li>log n needs a shortcut to throw away half: sorted data, a tree shape, a yes/no question that flips once. Unsorted data has no shortcut, so searching it is O(n).</li><li>O(log n) is not "slow-ish O(n)". At 1 billion items, it's 30 steps versus 1 billion.</li></ul>
   <h4>The other "log"</h4>

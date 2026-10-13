@@ -1,6 +1,7 @@
 // Plain markdown for llms.txt and llms-full.txt, built from the same data as the pages.
 import { sourceOf } from "./bodies.js";
 import { stories } from "../../stories.js";
+import { hld } from "../../design-hld.js";
 import { SITE, BOOK_NAME, urlOf } from "./seo.js";
 
 const oneLine = s => String(s).replace(/\s+/g, " ").trim();
@@ -48,6 +49,9 @@ const problemText = (pg, m) => [
 const designProblemText = (pg, m) => [
   m.prompt,
   ...storyText(pg.slug),
+  section("Functional requirements", bullets(hld[pg.id].fr)),
+  section("Non functional requirements", bullets(hld[pg.id].nfr)),
+  section("High level design", Object.entries(hld[pg.id].paths).map(([n, s]) => `**${n}:** ${s.map(([b, x]) => `${b} (${x})`).join(" then ")}`).join("\n\n")),
   section("Ask first", bullets(m.clarify)),
   section("Numbers", table(m.numbers)),
   section("API", fence(m.api)),

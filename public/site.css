@@ -177,3 +177,16 @@ pre.plain{white-space:pre-wrap;word-break:break-word}
 .lgtab td:nth-child(2){font-weight:700;color:var(--accent)}
 .bar-row i{min-width:1px}
 .bar-row{grid-template-columns:52px minmax(0,1fr) 80px}.bar-row b{text-align:right}
+
+/* system design: on-page contents + request path as boxes and arrows */
+.toc{border:1px solid var(--rule);border-radius:8px;padding:10px 14px;margin:14px 0;font-size:14px}
+.toc ol{margin:6px 0 0;padding-left:22px;columns:2;column-gap:20px}
+.toc li{margin:3px 0}
+main h3{font-size:15px;margin:18px 0 6px}
+.flow{list-style:none;padding:0;margin:8px 0 14px;counter-reset:f}
+.flow li{position:relative;border:1px solid var(--ink);border-radius:6px;padding:8px 12px;margin:0 0 26px;background:#fff}
+.flow li:not(:last-child)::after{content:"↓";position:absolute;left:50%;bottom:-24px;transform:translateX(-50%);color:var(--accent);font-weight:700}
+.flow b{display:block;font:600 13px var(--mono)}
+.flow span{display:block;font-size:14px;color:var(--meta)}
+.hint{color:var(--meta)}
+:target{scroll-margin-top:64px}

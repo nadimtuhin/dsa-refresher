@@ -10,6 +10,7 @@ import * as LG from "./logn.js";
 import { designAnims } from "./design-anims.js";
 import { pages } from "./src/lib/pages.js";
 import { stories } from "./stories.js";
+import { hld } from "./design-hld.js";
 
 export async function runChecks() {
   const errors = [];
@@ -37,8 +38,12 @@ export async function runChecks() {
     const s = pg.tracked && stories[pg.slug];
     if (pg.tracked && !(s && s.story.length >= 1 && s.examples.length >= 3)) errors.push(`STORY ${pg.slug}: needs a story and at least 3 examples`);
   }
+  for (const pg of pages) if (pg.part.key === "d" && !pg.meta.how) {
+    const h = hld[pg.id];
+    if (!(h && h.fr.length && h.nfr.length && Object.keys(h.paths).length)) errors.push(`HLD ${pg.slug}: needs requirements and a request path`);
+  }
   for (const k of Object.keys(stories)) if (!pages.some(pg => pg.slug === k)) errors.push(`STORY ${k}: no such page`);
-  for (const pg of pages) if (!existsSync(`public/og/${pg.slug}.png`)) errors.push(`OG ${pg.slug}: missing share image, run npm run og`);
+  for (const pg of pages) if (!existsSync(`public/og/${pg.slug}.jpg`)) errors.push(`OG ${pg.slug}: missing share image, run npm run og`);
 
   const nFrames = Object.values(frames).reduce((s, f) => s + f.length, 0);
   return { pass, errors, frames, nAnims: Object.keys(frames).length, nFrames };

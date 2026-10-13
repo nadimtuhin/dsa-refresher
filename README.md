@@ -29,3 +29,8 @@ One dependency (`astro`, static output, no client framework). Each page inlines 
 ## License
 
 MIT
+
+## Share images and favicon
+
+- `node og-art.mjs` draws one picture per page through 9Router (`cx/gpt-image-2`), from the scene list in `og-scenes.js`. Only missing ones are made; `--force` redoes all, `--only=slug,slug` redoes some. The pictures are committed in `og-art/`.
+- `npm run og` builds the 1200x630 share cards in `public/og/` (title on the left, picture on the right) and the favicons from `public/favicon.svg`. The build fails if a page has no share card.

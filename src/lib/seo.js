@@ -50,7 +50,7 @@ export const ogSubtitle = pg => {
   if (pg.part.key === "p") return `${m.diff} · ${m.time} time · ${m.space} space · tested JavaScript + animation`;
   return m.seo ?? m.what ?? m.prompt;
 };
-export const ogImage = pg => `${SITE}/og/${pg.slug}.png`;
+export const ogImage = pg => `${SITE}/og/${pg.slug}.jpg`;
 
 const ul = xs => `<ul>${xs.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`;
 
