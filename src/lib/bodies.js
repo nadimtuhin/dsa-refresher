@@ -13,7 +13,7 @@ export const hl = s =>
 // source shown on each page is the tested source between "// #region id" and "// #endregion"
 const sources = {};
 export const sourceOf = (partKey, id) => {
-  const file = { c: "concepts.js", p: "problems.js", d: "design.js" }[partKey];
+  const file = { c: "concepts.js", p: "problems.js", d: "design.js", l: "logn.js" }[partKey];
   sources[file] ??= readFileSync(join(process.cwd(), file), "utf8");
   const m = sources[file].match(new RegExp(`// #region ${id}\\n([\\s\\S]*?)// #endregion`));
   if (!m) throw new Error(`no source for ${id} in ${file}`);
@@ -85,5 +85,5 @@ export const buildBodies = (pages, ctx) => {
     : pg.part.key === "c" ? conceptBody(pg, pg.meta)
     : pg.part.key === "p" ? problemBody(pg, pg.meta)
     : pg.meta.how ? conceptBody(pg, pg.meta) : designProblemBody(pg, pg.meta);
-  for (const pg of pages) pg.body = bodyOf(pg);
+  for (const pg of pages) pg.body = bodyOf(pg).replace("<!--code:halvings-->", () => codeBlock(sourceOf("l", "halvings")));
 };

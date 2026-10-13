@@ -168,3 +168,12 @@ pre.plain{white-space:pre-wrap;word-break:break-word}
 .story{border-left:3px solid var(--accent);padding:2px 0 2px 14px;margin:14px 0 18px}
 .story p{margin:8px 0}
 .story h2.sub:first-child{margin-top:4px}
+
+/* log n page: to-scale bars, no JS */
+.bars{margin:10px 0}
+.bar-row{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:8px;align-items:center;margin:6px 0;font:12px var(--mono)}
+.bar-row i{display:block;height:18px;min-width:2px;background:var(--accent);border-radius:3px}
+.bar-row b{font-weight:600}
+.lgtab td:nth-child(2){font-weight:700;color:var(--accent)}
+.bar-row i{min-width:1px}
+.bar-row{grid-template-columns:52px minmax(0,1fr) 80px}.bar-row b{text-align:right}

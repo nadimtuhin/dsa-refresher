@@ -7,7 +7,9 @@ const { prev, next } = pg;
 const url = urlOf(pg);
 const where = [pg.part.key === "start" ? "" : pg.part.title, pg.ch.title].filter(Boolean).join(" · ");
 const safeJson = x => JSON.stringify(x).replace(/</g, "\\u003c");
-const pageFrames = frames[pg.slug];
+// frames for every animation mounted on this page, and nothing else
+const animIds = [...new Set([...pg.body.matchAll(/data-anim="([^"]+)"/g)].map(m => m[1]))];
+const pageFrames = animIds.length ? Object.fromEntries(animIds.map(id => [id, frames[id]])) : null;
 const ld = safeJson(jsonLd(pg, { buildDate: BUILD_DATE, firstOfPart }));
 ---
 <!doctype html>
@@ -72,7 +74,7 @@ const ld = safeJson(jsonLd(pg, { buildDate: BUILD_DATE, firstOfPart }));
 </article>
 <footer>Built by <a href="https://github.com/nadimtuhin">Nadim Tuhin</a> · source and tests: <a href="https://github.com/nadimtuhin/dsa-refresher">github.com/nadimtuhin/dsa-refresher</a> · <time datetime={BUILD_DATE}>Updated {BUILD_DATE}</time></footer>
 </main>
-{pageFrames && <script is:inline set:html={`window.FRAMES = ${safeJson({ [pg.slug]: pageFrames })};`}></script>}
+{pageFrames && <script is:inline set:html={`window.FRAMES = ${safeJson(pageFrames)};`}></script>}
 {pageFrames && <script is:inline src="/player.js" defer></script>}
 <script is:inline src="/app.js" defer></script>
 </body>

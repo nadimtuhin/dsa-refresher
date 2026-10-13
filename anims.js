@@ -877,3 +877,42 @@ export const anims = {
     return [res, P.longestCommonPrefix(strs)];
   }
 };
+
+import * as LG from "./logn.js";
+// "What log n means": halving a stack of cards, then the number guessing game on 1 million.
+export const logAnims = {
+  "logn-halve": f => {
+    let n = 16, steps = 0;
+    // one row of 16 slots; thrown-away cards stay as faded slots so every frame has the same height
+    const cards = () => Array.from({ length: 16 }, (_, i) => (i < n ? "■" : "·"));
+    const show = (note, cls) => f(note, A(`${n} card${n === 1 ? "" : "s"} left`, cards(), { ...range(0, n - 1, cls), ...range(n, 15, "dim") }), V({ "halvings so far": steps }));
+    show("Start with 16 cards. Each step throws away half (blue = still in play, grey = thrown away). Count the steps until 1 card is left.", "cmp");
+    while (n > 1) {
+      const before = n;
+      n = Math.ceil(n / 2);
+      steps++;
+      show(`Halving ${steps}: ${before} cards, throw away half, ${n} left.`, n === 1 ? "ok" : "cmp");
+    }
+    f("4 halvings for 16 cards, because 16 = 2 × 2 × 2 × 2. So log₂ 16 = 4. That's all log means: count the halvings.", A("1 card left", cards(), { 0: "ok", ...range(1, 15, "dim") }), V({ "halvings so far": steps, "log₂ 16": 4 }));
+    return [steps, LG.halvings(16)];
+  },
+  "logn-guess": f => {
+    const n = 1000000, secret = 734512;
+    let lo = 1, hi = n, g = 0;
+    const fmt = x => x.toLocaleString("en-US"), plain = s => ({ toString: () => s });
+    const state = () => V({ "still possible": plain(lo === hi ? fmt(lo) : `${fmt(lo)} to ${fmt(hi)}`), "numbers left": plain(fmt(hi - lo + 1)), guesses: g });
+    f(`I'm thinking of a number from 1 to ${fmt(n)}. You guess the middle, I say higher or lower.`, state());
+    while (lo <= hi) {
+      const mid = Math.floor((lo + hi) / 2);
+      g++;
+      const left = hi - lo + 1;
+      if (mid === secret) {
+        f(`Guess ${g}: ${fmt(mid)}. Correct! This time it took ${g} guesses. Even the unluckiest number never needs more than 20, because ${fmt(n)} halves to 1 in 20 steps.`, V({ answer: plain(fmt(mid)), guesses: g, "most ever needed": 20 }));
+        break;
+      }
+      if (mid < secret) lo = mid + 1; else hi = mid - 1;
+      f(`Guess ${g}: ${fmt(mid)}. "${mid < secret ? "Higher" : "Lower"}." Half gone: ${fmt(left)} numbers became ${fmt(hi - lo + 1)}.`, state());
+    }
+    return [g, LG.guessCount(n, secret)];
+  }
+};

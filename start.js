@@ -13,7 +13,7 @@ export const startPages = ({ nCon, nPro, nDes, pass, hl }) => ({
     <tr><td>Pointer</td><td>Just a number saying "which position I'm looking at", like a finger on a line of text. "Two pointers" means two fingers, for example one at the start and one at the end, walking toward each other. In a linked list, a pointer is "who is next in line", like each person holding the shoulder of the person in front.</td></tr>
     <tr><td>O(1)</td><td>Same speed no matter how big. Looking up a room number on the hotel board: 50 rooms or 50,000, one look.</td></tr>
     <tr><td>O(n)</td><td>Look at everything once. Reading every name on a list of 1,000 takes 1,000 looks.</td></tr>
-    <tr><td>O(log n)</td><td>Throw away half each step, like the "higher or lower" number guessing game. 1,000 items take about 10 steps, 1 million about 20, 1 billion about 30.</td></tr>
+    <tr><td><a href="logn">O(log n)</a></td><td>Throw away half each step, like the "higher or lower" number guessing game. 1,000 items take about 10 steps, 1 million about 20, 1 billion about 30.</td></tr>
     <tr><td>O(n log n)</td><td>Good sorting. 1 million items, about 20 million steps: fast enough.</td></tr>
     <tr><td>O(n²)</td><td>Compare everything with everything. 1,000 people all shaking hands is about 1 million handshakes. 1 million people: far too slow.</td></tr>
     <tr><td>Hash map</td><td>A lookup board: give a name, get the value in one step. In JavaScript: new Map().</td></tr>
@@ -53,11 +53,59 @@ export const startPages = ({ nCon, nPro, nDes, pass, hl }) => ({
     <tr><td>Best answer from overlapping subproblems</td><td>DP</td><td>states × work</td></tr>
     <tr><td>O(1) lookup plus O(1) ordering</td><td>Map + doubly linked list (LRU)</td><td>O(1)</td></tr>
   </table>`,
+  logn: `<h2>What log n means</h2>
+  <p class="what">log n is how many times you can cut n in half before 1 is left. 1,000 halves to 1 in about 10 cuts, 1 million in about 20, and 1 billion in about 30. That's why "O(log n)" is almost as good as instant.</p>
+  <div class="story"><h4>In plain words</h4>
+  <p>A friend thinks of a number from 1 to 100. You guess 50. "Higher." You guess 75. "Lower." 62... Every answer throws away half of what's left. You'll find it in at most 7 guesses, because 100 halves down to 1 in 7 steps.</p>
+  <p>Now make it 1 to 1 million. It feels like it should take forever, but it's only 20 guesses. Double the numbers to 2 million: just 1 more guess. That's the magic of log: making the problem twice as big only adds one step.</p>
+  <h4>Examples</h4>
+  <ul><li>A paper dictionary with 100,000 words: about 17 flips to find any word.</li><li>git bisect over 1,000 commits: about 10 test runs to find the one that broke the build.</li><li>A database index over 1 billion rows: about 30 comparisons (and only 3 or 4 disk reads, because each B+tree page splits hundreds of ways, not 2).</li><li>A heap with 1 million items: adding one takes at most about 20 swaps.</li><li>A balanced tree of height h holds about 2ʰ items, so height = log₂(items).</li></ul></div>
+  <h4>Watch it: halving 16 cards</h4>
+  <div class="anim" data-anim="logn-halve"></div>
+  <h4>Watch it: guessing a number from 1 to 1,000,000</h4>
+  <div class="anim" data-anim="logn-guess"></div>
+  <h4>How many steps?</h4>
+  <table class="lgtab">
+    <tr><th>Items</th><th>Halvings (log n)</th><th>Check every item (n)</th></tr>
+    <tr><td>8</td><td>3</td><td>8</td></tr>
+    <tr><td>1 thousand</td><td>about 10</td><td>1 thousand</td></tr>
+    <tr><td>1 million</td><td>about 20</td><td>1 million</td></tr>
+    <tr><td>1 billion</td><td>about 30</td><td>1 billion</td></tr>
+  </table>
+  <p>Compare everything with everything (n²) for 1 million items: a million million steps (a trillion), versus 20 steps.</p>
+  <h4>See the gap</h4>
+  <p>Steps for 100 items, drawn to scale.</p>
+  <div class="bars" role="img" aria-label="Steps for 100 items: log n is 7, n is 100">
+    <div class="bar-row"><span>log n</span><i style="width:7%"></i><b>7</b></div>
+    <div class="bar-row"><span>n</span><i style="width:100%"></i><b>100</b></div>
+  </div>
+  <p>Steps for 1 million items, drawn to scale.</p>
+  <div class="bars" role="img" aria-label="Steps for 1 million items: log n is 20, too thin to see; n is 1 million">
+    <div class="bar-row"><span>log n</span><i style="width:0.002%"></i><b>20</b></div>
+    <div class="bar-row"><span>n</span><i style="width:100%"></i><b>1,000,000</b></div>
+  </div>
+  <p>At 1 million, the log n bar is 50,000 times shorter than the n bar: too thin to see. The bigger the data, the bigger the win.</p>
+  <h4>Where log n shows up</h4>
+  <table>
+    <tr><td>Binary search</td><td>Halve the sorted list each step.</td></tr>
+    <tr><td>Balanced tree, B+tree index</td><td>Each level splits the data; the height is log n.</td></tr>
+    <tr><td>Heap push and pop</td><td>An item moves up or down one level per swap; log n levels.</td></tr>
+    <tr><td>Merge sort (n log n), quick sort (n log n on average)</td><td>log n levels of splitting, n work on each level.</td></tr>
+    <tr><td>Union-find (nearly constant)</td><td>Grows even slower than log n, so treat it as O(1).</td></tr>
+  </table>
+  <h4>How to spot it in code</h4>
+  <ul><li>A loop where the size is divided by 2 (or any fixed number) each time: <code>while (n > 1) n = n / 2</code>.</li><li>A loop where something doubles until it reaches n: <code>for (let i = 1; i < n; i *= 2)</code>.</li><li>Recursion that goes into only ONE half each call (binary search). If it goes into BOTH halves and does n work to combine, that's n log n (merge sort).</li></ul>
+  <details><summary>The code behind the animations (JavaScript, tested)</summary><!--code:halvings--></details>
+  <h4>Things people get wrong</h4>
+  <ul><li>The base doesn't matter in Big O: log₂ n and log₁₀ n differ only by a fixed factor (about 3.3), so everyone just writes log n.</li><li>log n needs a shortcut to throw away half: sorted data, a tree shape, a yes/no question that flips once. Unsorted data has no shortcut, so searching it is O(n).</li><li>O(log n) is not "slow-ish O(n)". At 1 billion items, it's 30 steps versus 1 billion.</li></ul>
+  <h4>The other "log"</h4>
+  <p>In system design, a log means something different: a list of events you only ever add to the end of, in order, like a bank statement. Kafka, a database's write-ahead log and the outbox table are all logs in this sense. Nothing to do with log n.</p>
+  <div class="say"><b>Say out loud:</b> Each step throws away half the remaining data, so it takes about log₂ n steps: around 20 for a million items. Doubling the input only adds one step.</div>`,
   bigo: `<h2>Complexity classes</h2>
   <table>
     <tr><th>Big O</th><th>Name</th><th>Typical source</th><th>n = 1M feels like</th></tr>
     <tr><td>O(1)</td><td>constant</td><td>hash lookup, array index</td><td>instant</td></tr>
-    <tr><td>O(log n)</td><td>logarithmic</td><td>binary search, heap op, B+tree</td><td>~20 steps</td></tr>
+    <tr><td><a href="logn">O(log n)</a></td><td>logarithmic</td><td>binary search, heap op, B+tree</td><td>~20 steps</td></tr>
     <tr><td>O(n)</td><td>linear</td><td>one pass</td><td>milliseconds</td></tr>
     <tr><td>O(n log n)</td><td>linearithmic</td><td>good sorting</td><td>~20M steps, fine</td></tr>
     <tr><td>O(n²)</td><td>quadratic</td><td>nested loops</td><td>10¹² steps, too slow</td></tr>
