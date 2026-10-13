@@ -8,6 +8,8 @@ import * as D from "./design.js";
 import { anims, logAnims } from "./anims.js";
 import * as LG from "./logn.js";
 import { designAnims } from "./design-anims.js";
+import { designAnims2 } from "./design-anims2.js";
+import * as D2 from "./design2.js";
 import { pages } from "./src/lib/pages.js";
 import { stories } from "./stories.js";
 import { hld } from "./design-hld.js";
@@ -16,7 +18,7 @@ export async function runChecks() {
   const errors = [];
   let pass = 0;
 
-  for (const [label, tests] of [["concept", C.tests], ["problem", P.tests], ["design", D.tests], ["log", LG.tests]])
+  for (const [label, tests] of [["concept", C.tests], ["problem", P.tests], ["design", D.tests], ["design", D2.tests], ["log", LG.tests]])
     for (const [id, t] of Object.entries(tests))
       for (const [got, want] of await t()) {
         if (JSON.stringify(got) === JSON.stringify(want)) pass++;
@@ -25,7 +27,7 @@ export async function runChecks() {
 
   // every animation must end on the tested solution's answer
   const frames = {};
-  const allAnims = { ...anims, ...logAnims, ...Object.fromEntries(Object.entries(designAnims).map(([k, v]) => ["d-" + k, v])) };
+  const allAnims = { ...anims, ...logAnims, ...Object.fromEntries(Object.entries({ ...designAnims, ...designAnims2 }).map(([k, v]) => ["d-" + k, v])) };
   for (const [id, trace] of Object.entries(allAnims)) {
     const fr = [];
     const [mine, real] = await trace((note, ...views) => fr.push({ note, views: JSON.parse(JSON.stringify(views)) }));

@@ -1,7 +1,10 @@
 // The book as data: every page in reading order. No rendering here, so check.js can use it without Astro.
 import * as C from "../../concepts.js";
 import * as P from "../../problems.js";
-import * as D from "../../design.js";
+import * as D1 from "../../design.js";
+import * as D2 from "../../design2.js";
+// Part 3 spans two files; merged here so the rest of the book sees one part
+const D = { meta: { ...D1.meta, ...D2.meta }, tests: { ...D1.tests, ...D2.tests }, chapters: [...D1.chapters, ...D2.chapters] };
 
 export const parts = [
   { key: "start", title: "Start", chapters: [{ title: "", ids: ["start", "words", "pick", "logn", "bigo", "compare", "method", "sdmethod", "js"] }] },

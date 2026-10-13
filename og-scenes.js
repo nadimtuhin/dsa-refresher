@@ -68,5 +68,12 @@ export const scenes = {
   "d-job-dispatch": "a city map grid with a customer pin and nearby driver cars, one red car chosen",
   "d-news-feed": "a newspaper delivery person dropping papers into many mailboxes",
   "d-chat": "two phones exchanging message bubbles in order, without text",
-  "d-app-builder": "a laptop showing a website being assembled from blocks by a small robot arm, with saved version snapshots"
+  "d-app-builder": "a laptop showing a website being assembled from blocks by a small robot arm, with saved version snapshots",
+  "d-ride-sharing": "a city street grid in the rain with a rider holding a phone and three small cars nearby, one red car turning toward the rider",
+  "d-food-delivery": "a restaurant kitchen counter with a sealed food box, a delivery rider on a scooter arriving at the door",
+  "d-courier-tracking": "a parcel moving along a dotted route from a shop to a warehouse hub to a motorbike to a house door",
+  "d-twitter": "a bird shaped stack of short message cards flowing into many small mailboxes, one large megaphone",
+  "d-facebook": "a network of round profile circles joined by lines, one red circle being suggested with two shared links",
+  "d-chatgpt": "a chat window with a reply being typed out as small blocks, connected by a cable to a rack of GPU servers",
+  "d-coding-harness": "a robot arm holding a wrench reaching toward a code editor window, a red guard rail between them with a checkpoint flag"
 };

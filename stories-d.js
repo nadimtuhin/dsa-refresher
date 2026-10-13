@@ -167,5 +167,89 @@ export const storiesD = {
       "Build check: run the bundler; on error, send the error text to the model.",
       "Sandboxes: Firecracker microVMs or containers, no secrets inside, stopped after 10 idle minutes."
     ]
+  },
+  "d-ride-sharing": {
+    story: [
+      "It's raining at Gulshan 1 at 6 pm. You open the app and tap Request. Behind the screen, the app looks at your square of the map and the squares around it, finds drivers who are free, and asks the one with the shortest drive to you first. He has 15 seconds to say yes. If he doesn't, the next driver gets asked.",
+      "Because of the rain, 30 people asked for a ride and only 10 drivers are free nearby. So the price goes up a step, say to 1.5x. That pulls more drivers toward Gulshan and makes some riders wait. You see the higher price before you book, and it is locked onto your ride."
+    ],
+    examples: [
+      "Uber, Lyft and Grab all match by area cells first, then by road time, not straight line distance.",
+      "Two drivers tap Accept at once: a conditional database update lets only the first one win.",
+      "Driver locations update every few seconds and are thrown away after; only the latest matters.",
+      "Surge is recalculated every minute per area and capped, so prices can't run away."
+    ]
+  },
+  "d-food-delivery": {
+    story: [
+      "You order kacchi biryani at 1 pm. The order is placed, then the restaurant accepts it, then the kitchen starts cooking. At this point you try to cancel, and the app says no: the rice is already in the pot. Every order walks through the same fixed steps, and the system refuses any jump that doesn't make sense, like delivered before picked up.",
+      "The biryani will be ready in 20 minutes and the nearest rider is 8 minutes away. If the rider is sent now, he stands in the restaurant for 12 minutes. So the system waits and sends him at minute 12. He walks in just as the box is sealed."
+    ],
+    examples: [
+      "Foodpanda, Uber Eats and DoorDash all model an order as a state machine.",
+      "The price of each item is copied onto your order, so a menu change a minute later doesn't change your bill.",
+      "Lunch and dinner peaks are 60% of the day's orders: menus come from cache, ordering is a tiny write.",
+      "Pressing Pay twice on a bad network sends the same idempotency key, so you get one order, not two."
+    ]
+  },
+  "d-courier-tracking": {
+    story: [
+      "A Facebook shop in Mirpur sends you a parcel. A rider picks it up and scans it. At the hub it's scanned again in, then out, then onto a delivery rider's bike. Each scan adds a line to the parcel's history, which is what you see when you open the tracking link.",
+      "The delivery rider's phone sends its location every few seconds. On a weak network, the 2:03 ping arrives after the 2:05 one, and the 2:05 one arrives twice. The map keeps the newest one as the moving dot, puts the late one in the trail where it belongs, and ignores the copy. At your door, the rider asks for the 4 digit code from your SMS. Wrong code, no delivery."
+    ],
+    examples: [
+      "Courier companies like DHL and FedEx work from scan events at each hand off.",
+      "Phones batch GPS pings and send them every 30 s to save battery, more often near the customer.",
+      "The delivery code is stored only as a hash, so staff can't read it from the database.",
+      "Failed attempts are events too: not home, reschedule, and after 3 tries, return to the merchant."
+    ]
+  },
+  "d-twitter": {
+    story: [
+      "You follow 300 people. When you open the app, the newest tweets from all of them must appear in under a second. Reading 300 lists and sorting everything every time would be far too slow at 600,000 timeline reads a second.",
+      "So the work is done ahead of time: when your friend tweets, the tweet's id is dropped into your timeline list right away, like a newspaper boy putting a paper in every subscriber's box. Except for accounts with 100 million followers: their tweets aren't delivered to 100 million boxes. When you open the app, the system grabs their latest few and mixes them in."
+    ],
+    examples: [
+      "Twitter keeps about 800 tweet ids per user's timeline in Redis.",
+      "Tweet ids are snowflakes: the time comes first, so sorting by id is sorting by time.",
+      "A celebrity tweet costs one write instead of 100 million.",
+      "Like counts on a viral tweet go to several counters that are added up, so no single row melts."
+    ]
+  },
+  "d-facebook": {
+    story: [
+      "Your feed isn't newest first. Facebook gathers a few thousand recent posts from friends and pages, drops anything you're not allowed to see, then scores each one: how close you are to the person, how much people are reacting, how old it is. You see the top 20.",
+      "People you may know works like a party. You know Ana and Bob. Ana and Bob both know Cat. You've never met Cat, but two of your friends have, so Cat goes at the top of your suggestions."
+    ],
+    examples: [
+      "A post from your sister an hour ago beats a two day old post from someone you never talk to.",
+      "A post with 200 likes can beat a close friend's quiet post.",
+      "The friend graph is stored as edges sharded by user, behind a huge cache (Facebook's is called TAO).",
+      "If ranking is slow, show a simple newest first feed instead of an empty screen."
+    ]
+  },
+  "d-chatgpt": {
+    story: [
+      "You ask a question and the answer starts typing itself out almost at once. The model really does make the answer one word at a time, and the app shows each word as it arrives, so you aren't staring at a spinner for 10 seconds.",
+      "The model can only read so much at once. If your chat has gone on for an hour, the app keeps the instructions and your most recent messages, and leaves out the oldest ones, like a friend who remembers the last half hour of a conversation but not the start. Behind all of it are GPUs, which are expensive and limited, so requests wait in a queue and are run together in batches."
+    ],
+    examples: [
+      "Streaming uses server sent events: one request, many small chunks back.",
+      "Limits are counted in tokens, not requests: a 5,000 word question costs more than a hello.",
+      "Easy questions can go to a smaller, cheaper model.",
+      "Close the tab and generation stops, so no GPU time is wasted."
+    ]
+  },
+  "d-coding-harness": {
+    story: [
+      "You tell an AI coding agent: set x to 2. It can't touch your files directly. It asks the harness, the program around it: please read b.js. There is no b.js, so the harness sends back an error, and the model tries a.js instead. Then it asks to write the change. Then, oddly, it asks to run rm -rf /. The harness says no. The model never gets the final word on what runs.",
+      "Then the model says it's done, and the loop ends. If it never says done, a step limit ends it. The harness also saves a copy of each file before changing it, so anything can be undone, and it runs the tests to check the work instead of trusting the model's word."
+    ],
+    examples: [
+      "Claude Code, Codex CLI and Cursor's agent all run this tool loop.",
+      "Reading files is allowed; writing and shell commands need approval or an allow list.",
+      "Long command output is trimmed before going back to the model, to save context.",
+      "Tool errors go back as text, so the model can try another way instead of crashing."
+    ]
   }
 };

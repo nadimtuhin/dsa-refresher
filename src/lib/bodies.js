@@ -14,10 +14,13 @@ export const hl = s =>
 // source shown on each page is the tested source between "// #region id" and "// #endregion"
 const sources = {};
 export const sourceOf = (partKey, id) => {
-  const file = { c: "concepts.js", p: "problems.js", d: "design.js", l: "logn.js" }[partKey];
-  sources[file] ??= readFileSync(join(process.cwd(), file), "utf8");
-  const m = sources[file].match(new RegExp(`// #region ${id}\\n([\\s\\S]*?)// #endregion`));
-  if (!m) throw new Error(`no source for ${id} in ${file}`);
+  const files = { c: ["concepts.js"], p: ["problems.js"], d: ["design.js", "design2.js"], l: ["logn.js"] }[partKey];
+  let m;
+  for (const file of files) {
+    sources[file] ??= readFileSync(join(process.cwd(), file), "utf8");
+    m ??= sources[file].match(new RegExp(`// #region ${id}\\n([\\s\\S]*?)// #endregion`));
+  }
+  if (!m) throw new Error(`no source for ${id} in ${files}`);
   return m[1].replace(/^export /gm, "").trimEnd();
 };
 

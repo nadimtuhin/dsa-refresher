@@ -57,5 +57,63 @@ export const hld = {
       "Prompt to preview": [["Browser", "sends the chat message"], ["Orchestrator", "picks relevant files, builds the prompt"], ["LLM", "streams back search and replace edits"], ["Edit applier", "applies all edits or none"], ["Sandbox (warm pool)", "runs the build; errors go back to the LLM, max 3 tries"], ["Version store", "saves the working tree as a new version"], ["Browser", "preview iframe reloads"]],
       "Undo and deploy": [["Browser", "pick version 4"], ["Version store", "versions are never changed, so restore is a pointer move"], ["Static build", "for deploy"], ["CDN", "serves the published app"]]
     }
+  },
+  "ride-sharing": {
+    fr: ["Riders request a ride and see the price first.", "Nearby drivers are offered the ride; exactly one gets it.", "Both see each other live on a map until drop off.", "Price rises when riders outnumber drivers in an area."],
+    nfr: ["Match within a few seconds.", "Never assign one ride to two drivers.", "Handle about 50k location updates per second.", "Location data can be lost; rides and payments can't."],
+    paths: {
+      "Request a ride": [["Rider app", "POST /rides with pickup and drop off"], ["Ride service", "gets the surge price for the area, saves the ride as requested"], ["Matcher", "finds free drivers in nearby map cells"], ["Redis GEO", "latest driver positions"], ["Routing service", "ranks candidates by road ETA"], ["Push", "offer to the best driver, 15 s timeout, then the next"]],
+      "Accept and ride": [["Driver app", "POST /rides/1/accept"], ["Ride service", "UPDATE ... WHERE status = 'requested'"], ["Pub/sub", "driver position forwarded to the rider every few seconds"], ["Ride events", "each state change, outbox to payments and receipts"]],
+      "Location updates": [["Driver app", "GPS every 4 s over a socket"], ["Location service", "overwrite in Redis GEO, expire after 30 s"], ["Surge job", "every minute: requests vs free drivers per area"]]
+    }
+  },
+  "food-delivery": {
+    fr: ["Customers order from a restaurant and pay.", "The restaurant accepts and cooks; a rider picks up and delivers.", "Everyone sees the status live.", "Cancel is allowed only before cooking starts."],
+    nfr: ["Survive lunch and dinner peaks (60% of orders).", "No step can be skipped or reversed.", "Riders shouldn't wait at restaurants, food shouldn't wait for riders.", "One order per tap, even on bad networks."],
+    paths: {
+      "Place an order": [["Customer app", "POST /orders with an idempotency key"], ["Order service", "copies item prices onto the order, saves it as placed"], ["Payments", "authorise the card"], ["Restaurant tablet", "new order pushed; accept or reject"]],
+      "Cook and deliver": [["Restaurant", "accepted, then preparing"], ["Dispatch (per city queue)", "sends a rider at ready time minus travel time"], ["Rider app", "ready, picked up, delivered: each a checked state change"], ["Order events", "live status for the customer, outbox to payouts"]]
+    }
+  },
+  "courier-tracking": {
+    fr: ["Merchants book parcels and get a tracking code.", "Each hand off is scanned: pickup, hub in, hub out, out for delivery.", "Customers track the parcel and the rider live.", "Delivery needs the customer's one time code."],
+    nfr: ["Tracking history is complete and in order.", "Late and duplicate GPS pings don't confuse the map.", "Works offline on the rider's phone and syncs later.", "Easy on the phone's battery and data."],
+    paths: {
+      "Scan a parcel": [["Hub or rider app", "POST /scans with parcel, hub and kind"], ["Parcel service", "checks the scan fits the route"], ["parcel_events", "appends the event: the tracking history"], ["parcels", "status updated from the event"], ["Notifications", "SMS at key steps"]],
+      "Live position": [["Rider phone", "batched GPS pings with phone time"], ["Tracking service", "newest per rider wins, late ones go to the trail, duplicates dropped"], ["Redis", "live dot per rider"], ["Tracking page", "shows the dot while out for delivery"]],
+      "Deliver": [["Customer", "reads out the SMS code"], ["Rider app", "POST /parcels/1/deliver with the code and a photo"], ["Parcel service", "compares against the stored hash"], ["parcel_events", "delivered, with time and position"]]
+    }
+  },
+  twitter: {
+    fr: ["Post short tweets with media.", "Follow and unfollow people.", "Home timeline: tweets from people you follow, newest first.", "Like and reply."],
+    nfr: ["Timeline loads in under 200 ms at 600k reads per second.", "A tweet may take a few seconds to reach timelines.", "Accounts with 100M followers must not melt the system.", "Ids must sort by time without a central counter."],
+    paths: {
+      "Post a tweet": [["Client", "POST /tweets"], ["Tweet service", "makes a snowflake id, saves the tweet"], ["Fan out queue", "skipped for huge accounts"], ["Fan out workers", "push the id into each follower's timeline list"], ["Redis timelines", "about 800 ids per user"]],
+      "Read the timeline": [["Client", "GET /timeline/home"], ["Timeline service", "reads the user's id list"], ["Celebrity merge", "adds recent tweets from huge accounts you follow"], ["Tweet cache", "ids to full tweets in one multi get"], ["CDN", "images and video"]]
+    }
+  },
+  facebook: {
+    fr: ["Add friends and post with an audience.", "A ranked news feed.", "People you may know.", "Likes and comments."],
+    nfr: ["Feed in under 300 ms for 2B daily users.", "Never show a post to someone outside its audience.", "The friend graph handles billions of reads.", "Graceful fallback when ranking is slow."],
+    paths: {
+      "Load the feed": [["Client", "GET /feed"], ["Feed service", "gathers candidate posts from friends and pages"], ["Graph cache (TAO style)", "who are my friends, what did they post"], ["Privacy filter", "drops posts you can't see"], ["Ranker", "closeness x engagement / age, keep the top 20"], ["Client", "renders, cursor for more"]],
+      "Suggest friends": [["Daily batch", "friends of friends per user"], ["Count mutual friends", "skip current friends and blocks"], ["Suggestions store", "top results per user"], ["Client", "GET /suggestions"]]
+    }
+  },
+  chatgpt: {
+    fr: ["Chat with a model; answers stream as they are made.", "Conversations are saved and listed.", "Stop and regenerate.", "Free and paid tiers with different limits."],
+    nfr: ["First token in under a second.", "GPUs are scarce: share them fairly.", "Cost per message under control.", "Private: users can delete their data."],
+    paths: {
+      "Send a message": [["Browser", "POST message, keeps the stream open"], ["API server", "auth, token based rate limit by tier"], ["Context builder", "system prompt + newest messages that fit the budget"], ["Queue", "per tier priority"], ["Model servers (GPU)", "batch requests, generate token by token"], ["Browser", "shows tokens as server sent events arrive"]],
+      "Save": [["API server", "writes the user message and the final answer with seq numbers"], ["Usage table", "tokens per user per day"], ["Title job", "names the conversation in the background"]]
+    }
+  },
+  "coding-harness": {
+    fr: ["Take a coding task in plain words.", "Read, search and edit files; run commands and tests.", "Show each step; ask before risky actions.", "Undo changes."],
+    nfr: ["Never runs a denied command, whatever the model says.", "Stops on step, time and cost limits.", "Fits work into the model's context window.", "Recovers from tool errors instead of crashing."],
+    paths: {
+      "One loop step": [["Developer", "gives the task"], ["Harness", "sends task, tool list and project notes to the model"], ["Model", "replies with a tool call, or done"], ["Permission check", "allow list, approval prompt, or deny"], ["Tool runner", "runs with a timeout in a sandbox, trims long output"], ["Harness", "adds the result to the log and loops"]],
+      "Finish": [["Model", "says done"], ["Harness", "runs the tests"], ["Checkpoints", "file snapshots for undo"], ["Developer", "reviews the diff"]]
+    }
   }
 };
