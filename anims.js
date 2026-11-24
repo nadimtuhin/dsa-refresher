@@ -307,18 +307,21 @@ export const anims = {
     const input = [5, 2, 9, 1, 5, 6, -3], a = [...input], fixed = new Set();
     const base = () => Object.fromEntries([...fixed].map(i => [i, "ok"]));
     const qs = (lo, hi) => {
-      if (lo >= hi) { if (lo === hi) fixed.add(lo); return; }
-      const mid = lo + ((hi - lo) >> 1);
-      [a[mid], a[hi]] = [a[hi], a[mid]];
-      const pivot = a[hi];
-      f(`Range ${lo} to ${hi}: take the middle item (${pivot}) as the pivot and move it to the end.`, A("array", a, { ...base(), ...range(lo, hi - 1, "cmp"), [hi]: "cur" }, ptrs({ pivot: hi })));
-      let i = lo;
-      for (let j = lo; j < hi; j++) if (a[j] < pivot) { [a[i], a[j]] = [a[j], a[i]]; i++; }
-      [a[i], a[hi]] = [a[hi], a[i]];
-      fixed.add(i);
-      f(`Partition: everything < ${pivot} moves left. The pivot lands at index ${i}, its final spot.`, A("array", a, { ...base(), [i]: "cur" }, ptrs({ pivot: i })));
-      qs(lo, i - 1);
-      qs(i + 1, hi);
+      while (lo < hi) {
+        const mid = lo + ((hi - lo) >> 1);
+        [a[mid], a[hi]] = [a[hi], a[mid]];
+        const pivot = a[hi];
+        f(`Range ${lo} to ${hi}: take the middle item (${pivot}) as the pivot and move it to the end.`, A("array", a, { ...base(), ...range(lo, hi - 1, "cmp"), [hi]: "cur" }, ptrs({ pivot: hi })));
+        let i = lo;
+        for (let j = lo; j < hi; j++) if (a[j] < pivot) { [a[i], a[j]] = [a[j], a[i]]; i++; }
+        [a[i], a[hi]] = [a[hi], a[i]];
+        fixed.add(i);
+        const leftSmaller = i - lo < hi - i;
+        f(`Partition: everything < ${pivot} moves left. The pivot lands at index ${i}, its final spot. Sort the smaller side (${leftSmaller ? "left" : "right"}) first, then loop on the other.`, A("array", a, { ...base(), [i]: "cur" }, ptrs({ pivot: i })));
+        if (leftSmaller) { qs(lo, i - 1); lo = i + 1; }
+        else { qs(i + 1, hi); hi = i - 1; }
+      }
+      if (lo === hi) fixed.add(lo);
     };
     f("Unsorted input.", A("array", a));
     qs(0, a.length - 1);
