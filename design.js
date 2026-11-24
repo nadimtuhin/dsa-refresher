@@ -29,6 +29,7 @@ class HashRing {
   }
   get(key) {
     const h = hash32(key), r = this.ring;
+    if (r.length === 0) return undefined; // no servers on the ring
     let lo = 0, hi = r.length; // first point clockwise with hash >= h
     while (lo < hi) {
       const mid = (lo + hi) >> 1;
@@ -144,7 +145,13 @@ class IdempotencyStore {
       return prev.res; // replay; the work does not run again
     }
     this.m.set(key, { fp, res: null }); // claim the key BEFORE doing the work
-    const res = run();
+    let res;
+    try {
+      res = run();
+    } catch (err) {
+      this.m.delete(key); // the work failed: release the key so a retry can run
+      throw err;
+    }
     this.m.get(key).res = res;
     return res;
   }
@@ -235,8 +242,13 @@ function encode62(n) {
   return s;
 }
 function decode62(s) {
+  if (!s) return null;
   let n = 0;
-  for (const c of s) n = n * 62 + B62.indexOf(c);
+  for (const c of s) {
+    const d = B62.indexOf(c);
+    if (d < 0) return null; // not a code we made: answer 404, don't resolve it to some other link
+    n = n * 62 + d;
+  }
   return n;
 }
 // #endregion
@@ -486,7 +498,8 @@ export const tests = {
       [moved > 0.15 && moved < 0.35, true],
       [onlyToD, true],
       [modMoved > 0.6, true],
-      [keys.every((k, i) => ring.get(k) === before[i]), true]
+      [keys.every((k, i) => ring.get(k) === before[i]), true],
+      [new HashRing(10).get("key1"), undefined] // no servers yet: no owner, not a crash
     ];
   },
   "cache-aside": async () => {
@@ -565,7 +578,22 @@ export const tests = {
       [c.status, 422],
       [inner.status, 409],
       [d.body, 2],
-      [n, 2]
+      [n, 2],
+      ...(() => {
+        // the first attempt fails: the key must be released so a retry can run, not stuck at 409 forever
+        let threw = false;
+        try {
+          s.handle("k3", { amt: 3 }, () => {
+            throw new Error("card declined");
+          });
+        } catch {
+          threw = true;
+        }
+        return [
+          [threw, true],
+          [s.handle("k3", { amt: 3 }, run), { status: 201, body: 3 }]
+        ];
+      })()
     ];
   },
   outbox: () => {
@@ -633,6 +661,8 @@ export const tests = {
     [encode62(61), "Z"],
     [encode62(62), "10"],
     [decode62(encode62(123456789)), 123456789],
+    [decode62("1!"), null], // not a base62 code: must not resolve to some other link (it used to give 61, the id of "Z")
+    [decode62(""), null],
     [encode62(62 ** 7 - 1).length, 7]
   ],
   "rate-limiter": () => {

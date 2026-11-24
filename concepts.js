@@ -388,19 +388,26 @@ function mergeSort(a) {
 // #endregion
 // #region quick-sort
 function quickSort(a, lo = 0, hi = a.length - 1) {
-  if (lo >= hi) return a;
-  const mid = lo + ((hi - lo) >> 1);
-  [a[mid], a[hi]] = [a[hi], a[mid]]; // middle pivot dodges sorted-input worst case
-  const pivot = a[hi];
-  let i = lo; // everything left of i is < pivot
-  for (let j = lo; j < hi; j++)
-    if (a[j] < pivot) {
-      [a[i], a[j]] = [a[j], a[i]];
-      i++;
+  while (lo < hi) {
+    const mid = lo + ((hi - lo) >> 1);
+    [a[mid], a[hi]] = [a[hi], a[mid]]; // middle pivot dodges sorted-input worst case
+    const pivot = a[hi];
+    let i = lo; // everything left of i is < pivot
+    for (let j = lo; j < hi; j++)
+      if (a[j] < pivot) {
+        [a[i], a[j]] = [a[j], a[i]];
+        i++;
+      }
+    [a[i], a[hi]] = [a[hi], a[i]]; // pivot lands in its final spot
+    // recurse into the smaller side, loop on the bigger one: stack depth stays O(log n)
+    if (i - lo < hi - i) {
+      quickSort(a, lo, i - 1);
+      lo = i + 1;
+    } else {
+      quickSort(a, i + 1, hi);
+      hi = i - 1;
     }
-  [a[i], a[hi]] = [a[hi], a[i]]; // pivot lands in its final spot
-  quickSort(a, lo, i - 1);
-  quickSort(a, i + 1, hi);
+  }
   return a;
 }
 // #endregion
@@ -429,6 +436,7 @@ function upperBound(a, x) {
 }
 // "Search on the answer": smallest truck capacity that ships all packages, in order, within `days`
 function shipWithinDays(weights, days) {
+  if (weights.length === 0) return 0; // Math.max() of nothing is -Infinity: the search below would never end
   const fits = cap => {
     let used = 1,
       load = 0;
@@ -802,7 +810,10 @@ export const tests = {
       [quickSort([5, 2, 9, 1, 5, 6, -3]), [-3, 1, 2, 5, 5, 6, 9]],
       [quickSort([3, 3, 3]), [3, 3, 3]],
       [quickSort([...big]), [...big].sort((a, b) => a - b)],
-      [quickSort(Array.from({ length: 1000 }, (_, i) => i)).length, 1000]
+      [quickSort(Array.from({ length: 1000 }, (_, i) => i)).length, 1000],
+      [quickSort(new Array(12000).fill(7)).every(x => x === 7), true], // all duplicates: must not blow the stack
+      [quickSort([]), []],
+      [quickSort([1]), [1]]
     ];
   },
   "binary-search": () => {
@@ -814,7 +825,9 @@ export const tests = {
       [lowerBound(a, 9), 6],
       [lowerBound(a, 0), 0],
       [shipWithinDays([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 5), 15],
-      [shipWithinDays([3, 2, 2, 4, 1, 4], 3), 6]
+      [shipWithinDays([3, 2, 2, 4, 1, 4], 3), 6],
+      [shipWithinDays([], 3), 0], // nothing to ship: must return, not loop forever
+      [shipWithinDays([4], 1), 4]
     ];
   },
   backtracking: () => [
